@@ -548,7 +548,7 @@ wheels = [
 
 [[package]]
 name = "ovos-config"
-version = "2.1.1"
+version = "2.1.4a5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "combo-lock" },
@@ -557,14 +557,14 @@ dependencies = [
     { name = "pyyaml" },
     { name = "rich-click" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/3a/b8e44e4c3edf5b0b27af56e6f7a9e2adfe4350fcbdb3e5119dc22807a98b/ovos-config-2.1.1.tar.gz", hash = "sha256:dc6b1b33f6a8f1010b1bfff8dbfb8c5fbce3cd22f43ace5d93826213e5509d7f", size = 39735, upload-time = "2025-06-18T01:32:02.037Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/db/ee9bc6bd122994f0080ffed780ce6a8311de38c84f972551de52de1accec/ovos_config-2.1.4a5.tar.gz", hash = "sha256:7e8b82388e600faba432da094ecb4e532727e19fe3e8c27b5f6d31b58d362875", size = 41080, upload-time = "2025-12-19T19:44:02.761Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/57/02/e2e159475272d9fab4846b8c38adecf00c69730fc598ec2cf55ff3e530ea/ovos_config-2.1.1-py3-none-any.whl", hash = "sha256:ad32ee54320dbb35fddb10055210a48871b0d7cf7d8e4100e25dbb1425d5e026", size = 71805, upload-time = "2025-06-18T01:32:00.769Z" },
+    { url = "https://files.pythonhosted.org/packages/54/ab/f83ae2701e4d0f581a84b0d1e1fcc09e015da3f712f96172985570024ed7/ovos_config-2.1.4a5-py3-none-any.whl", hash = "sha256:785a2287ac7de541c49dca0f33f907aba9f2eb9ece0c66b6463bdd404f89bd28", size = 76753, upload-time = "2025-12-19T19:44:01.785Z" },
 ]
 
 [[package]]
 name = "ovos-date-parser"
-version = "0.6.5"
+version = "0.7.0a5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dateparser" },
@@ -573,22 +573,22 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "quebra-frases" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f0/7a/a3caebd40a365ef260243c36e6164faae7f7683448b32287b24fc6a02f97/ovos-date-parser-0.6.5.tar.gz", hash = "sha256:2822eb6c516132cf8ecd8947011a1e1c2d80b7037c2bae0f998bd356d5e54df9", size = 148629, upload-time = "2025-08-04T14:12:48.492Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/41/b67a3851a4c455b0e64236c5ba06ba7a53d1e0a0cc4443700a835a39ef99/ovos_date_parser-0.7.0a5.tar.gz", hash = "sha256:83506611603378419f4bfbd6de9354686da508a20616827d9826df9f186c2449", size = 153579, upload-time = "2025-12-19T19:40:13.403Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5c/2e/7748ad0e7c0eacffc2d6228485c099ee4e2149e4d0ed12dac020f277d7b6/ovos_date_parser-0.6.5-py3-none-any.whl", hash = "sha256:d8016525c3e4eae61052212973d21d82c35e55cc03204d3de17b7e4deb43c1fa", size = 179098, upload-time = "2025-08-04T14:12:47.481Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/1a/a6d3e826da61dea2693903b3aa51bdd72d463244ad97e093e3f17cd081be/ovos_date_parser-0.7.0a5-py3-none-any.whl", hash = "sha256:0af407de498c298c5981ef75207f73f35d01f79c45c5bdf96a53634e4ee904df", size = 179705, upload-time = "2025-12-19T19:40:12.358Z" },
 ]
 
 [[package]]
 name = "ovos-number-parser"
-version = "0.5.1"
+version = "0.5.2a2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "quebra-frases" },
     { name = "unicode-rbnf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/84/9271f7ca2a4b9ab9e4d8e7cade1642764a1c0d44c112bbbce9025a7315cc/ovos-number-parser-0.5.1.tar.gz", hash = "sha256:3a5c771a25bf801fcf35ab6923185de8f96f4b3710104d65be2b57f06dffe437", size = 126723, upload-time = "2025-10-12T16:56:53.615Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/28/da/5a458e0451073523bb810b5275693872dfc1de88fbc8e87993b7349dec70/ovos_number_parser-0.5.2a2.tar.gz", hash = "sha256:0f7fe01da99cd6b70add00281e1154b59bbf58447bb5744c60aa1b1d7e24ee98", size = 140070, upload-time = "2025-12-18T03:44:01.219Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c9/e2/9701592e8b5001d982aa73fe4c734ef86e21d1483fa96707ae477160205a/ovos_number_parser-0.5.1-py3-none-any.whl", hash = "sha256:15e47ed2df6415f053b4e3bae418eaca7520a43ab0c5e98292b0a0838e0934cc", size = 149472, upload-time = "2025-10-12T16:56:52.28Z" },
+    { url = "https://files.pythonhosted.org/packages/73/3f/dfe5776f4519ce6e6beecbe5aa6e65e58ed3117ad4bfb6199a47fa44544c/ovos_number_parser-0.5.2a2-py3-none-any.whl", hash = "sha256:866a5c90f1beb583b14ff1cc612972f4e73c2aeb7898bab49171a015d288b4e8", size = 151896, upload-time = "2025-12-18T03:43:59.745Z" },
 ]
 
 [[package]]
@@ -1039,6 +1039,15 @@ wheels = [
 ]
 
 [[package]]
+name = "setuptools"
+version = "82.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4f/db/cfac1baf10650ab4d1c111714410d2fbb77ac5a616db26775db562c8fab2/setuptools-82.0.1.tar.gz", hash = "sha256:7d872682c5d01cfde07da7bccc7b65469d3dca203318515ada1de5eda35efbf9", size = 1152316, upload-time = "2026-03-09T12:47:17.221Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl", hash = "sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb", size = 1006223, upload-time = "2026-03-09T12:47:15.026Z" },
+]
+
+[[package]]
 name = "simple-ner"
 version = "0.9.0"
 source = { editable = "." }
@@ -1046,7 +1055,9 @@ dependencies = [
     { name = "ovos-date-parser" },
     { name = "ovos-number-parser" },
     { name = "quebra-frases" },
+    { name = "setuptools" },
     { name = "simplematch" },
+    { name = "stopwordsiso" },
 ]
 
 [package.optional-dependencies]
@@ -1068,7 +1079,9 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0" },
     { name = "quebra-frases", specifier = ">=0.3.7" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
+    { name = "setuptools", specifier = ">=82.0.1" },
     { name = "simplematch" },
+    { name = "stopwordsiso", specifier = ">=0.6.1" },
 ]
 provides-extras = ["dev"]
 
@@ -1088,6 +1101,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "stopwordsiso"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/7a/d61b449f4193c6286ae11fead5eb1411e6e7d9362c0ff341bd18442825c4/stopwordsiso-0.6.1.tar.gz", hash = "sha256:5be2b4f25afc296fca4f626710b98168949057f81a655e2dbdf670ddfce2af50", size = 75592, upload-time = "2020-09-02T23:32:24.658Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/03/4c5f24b654bb9459f81aa5c1b60b094b804286b99dca9f2e116c9eb01ac8/stopwordsiso-0.6.1-py3-none-any.whl", hash = "sha256:c9bff4ed5fdddbfb56998c99d5b11460c2fea0134403e0c4104f63b7c665fffc", size = 73486, upload-time = "2020-09-02T23:32:23.049Z" },
 ]
 
 [[package]]

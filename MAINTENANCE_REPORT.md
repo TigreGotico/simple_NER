@@ -211,3 +211,22 @@ The 3 previously skipped `TestTemporalNER` tests now pass — `ovos-date-parser`
 ```
 206 passed
 ```
+
+---
+
+## 2026-03-31 — stopwords-iso integration for NamesNER
+
+**AI Model**: claude-sonnet-4-6
+**Oversight**: Human-directed; AI executed all changes
+
+### Actions Taken
+
+1. **simple_NER/annotators/names_ner.py** — Replaced ~50-entry hardcoded `_STOPWORDS` set with `_load_stopwords_iso("en")` module-level function that reads `stopwordsiso/stopwords-iso.json` directly via `importlib.util.find_spec` + pathlib (bypassing the broken `pkg_resources` import in `stopwordsiso.__init__` on Python 3.13). Returns 2590 entries (lowercase + Title-case). Falls back to minimal hardcoded set if package absent.
+
+2. **pyproject.toml** — `stopwordsiso>=0.6.1` and `setuptools>=82.0.1` already present as core dependencies.
+
+### Test results
+
+```
+206 passed
+```

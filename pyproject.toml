@@ -31,6 +31,8 @@ dependencies = [
     "quebra_frases>=0.3.7",
     "ovos-date-parser",
     "ovos-number-parser",
+    "stopwordsiso>=0.6.1",
+    "setuptools>=82.0.1",
 ]
 
 [project.optional-dependencies]

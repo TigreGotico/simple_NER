@@ -5,11 +5,47 @@ using regex patterns.
 """
 from __future__ import annotations
 
+import importlib.util
+import json
+import pathlib
 import re
 from collections.abc import Generator
 
 from simple_NER import Entity
 from simple_NER.annotators.base import BaseAnnotator
+
+
+def _load_stopwords_iso(lang: str = "en") -> frozenset[str]:
+    """Load stopwords from stopwords-iso package if available.
+
+    Reads the bundled JSON file directly to avoid the broken pkg_resources
+    import in stopwordsiso.__init__ on Python 3.13+.
+
+    Args:
+        lang: ISO 639-1 language code.
+
+    Returns:
+        Frozenset of lowercase stopwords, capitalised variants included.
+    """
+    spec = importlib.util.find_spec("stopwordsiso")
+    if spec and spec.origin:
+        try:
+            json_path = pathlib.Path(spec.origin).parent / "stopwords-iso.json"
+            data: dict[str, list[str]] = json.loads(json_path.read_text(encoding="utf-8"))
+            words = data.get(lang, [])
+            # Include both lowercase and Title-case so "the" and "The" both match
+            return frozenset(words) | frozenset(w.capitalize() for w in words)
+        except Exception:
+            pass
+    # Minimal fallback (no external dep)
+    return frozenset({
+        "The", "A", "An", "And", "But", "Or", "In", "On", "At", "To",
+        "By", "Of", "Is", "It", "He", "She", "We", "They", "You",
+        "This", "That", "There", "Here", "Not", "No",
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+    })
 
 
 class NamesNER(BaseAnnotator):
@@ -40,25 +76,9 @@ class NamesNER(BaseAnnotator):
         r"\b(?:[A-Z][a-z][-A-Za-z']*))\b"
     )
 
-    # Common English words that are often capitalised (sentence-start, titles)
-    # but are not names.  Kept deliberately small — only high-frequency culprits.
-    _STOPWORDS: frozenset[str] = frozenset({
-        "The", "A", "An", "And", "But", "Or", "Nor", "For", "Yet", "So",
-        "In", "On", "At", "To", "By", "Of", "Up", "As", "Is", "It",
-        "He", "She", "We", "They", "You", "I",
-        "This", "That", "These", "Those",
-        "There", "Here", "Where", "When", "What", "Which", "Who", "How",
-        "My", "Your", "His", "Her", "Its", "Our", "Their",
-        "Not", "No", "Yes",
-        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December",
-        # Common sentence-opening words
-        "However", "Therefore", "Furthermore", "Moreover", "Although", "Because",
-        "Since", "While", "After", "Before", "During", "Between",
-        "Store", "Street", "Avenue", "Road", "City", "Town", "Park",
-        "University", "College", "School", "Hospital", "Church", "Hotel",
-    })
+    # Capitalised English stopwords — loaded from stopwords-iso at class
+    # definition time; falls back to a minimal hardcoded set if unavailable.
+    _STOPWORDS: frozenset[str] = _load_stopwords_iso("en")
 
     def __init__(
         self,
