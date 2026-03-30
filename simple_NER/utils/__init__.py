@@ -1,5 +1,6 @@
-from os.path import join, isfile, expanduser
 from os import listdir
+from os.path import expanduser, isfile, join
+
 from simple_NER.settings import RESOURES_DIR
 
 

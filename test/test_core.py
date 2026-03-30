@@ -2,12 +2,10 @@
 
 No external dependencies beyond simplematch and quebra_frases.
 """
-import pytest
 from simple_NER import Entity, SimpleNER, _SimpleNamespace
+from simple_NER.annotators import NERWrapper
 from simple_NER.rules import Rule, RuleNER
 from simple_NER.rules.rx import RegexNER
-from simple_NER.annotators import NERWrapper
-
 
 # ---------------------------------------------------------------------------
 # Entity

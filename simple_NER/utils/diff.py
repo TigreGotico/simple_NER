@@ -1,19 +1,32 @@
+from collections.abc import Generator
 from difflib import SequenceMatcher
+from typing import Tuple
 
 
 class TextDiff:
-    """Create diffs of text snippets."""
+    """Create word-level diffs between two text snippets."""
 
-    def __init__(self, source, target):
-        """source = source text - target = target text"""
-        self.source = source.split()
-        self.target = target.split()
-        self.deleteCount, self.insertCount, self.replaceCount = 0, 0, 0
-        self.cruncher = SequenceMatcher(None, self.source,
-                                        self.target)
+    def __init__(self, source: str, target: str) -> None:
+        """Initialise with source and target texts.
 
-    def dif_tags(self):
-        """Create a tagged diff."""
+        Args:
+            source: Original text.
+            target: Modified text.
+        """
+        self.source: list[str] = source.split()
+        self.target: list[str] = target.split()
+        self.deleteCount: int = 0
+        self.insertCount: int = 0
+        self.replaceCount: int = 0
+        self.cruncher: SequenceMatcher = SequenceMatcher(None, self.source, self.target)
+
+    def dif_tags(self) -> Generator[Tuple[Tuple[str, str, str], Tuple[int, int], Tuple[int, int]], None, None]:
+        """Yield tagged word-level diff operations.
+
+        Yields:
+            Tuples of ``((tag, deleted, inserted), (alo, ahi), (blo, bhi))``
+            where *tag* is one of ``'replace'``, ``'delete'``, or ``'insert'``.
+        """
         for tag, alo, ahi, blo, bhi in self.cruncher.get_opcodes():
             inserted = ""
             deleted = ""

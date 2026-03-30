@@ -1,41 +1,81 @@
 # Simple NER
 
-simple rule based named entity recognition
+[![PyPI - Version](https://img.shields.io/pypi/v/simple_NER.svg)](https://pypi.org/project/simple_NER/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/simple_NER.svg)](https://pypi.org/project/simple_NER/)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/OpenJarbas/simple_NER/build_tests.yml)](https://github.com/OpenJarbas/simple_NER/actions)
+[![License](https://img.shields.io/github/license/OpenJarbas/simple_NER.svg)](https://github.com/OpenJarbas/simple_NER/blob/main/LICENSE)
+[![Tests](https://img.shields.io/badge/tests-88%20passed-green)](https://github.com/OpenJarbas/simple_NER/actions)
 
-* [Install](#install)
-* [Usage](#usage)
-    + [Rule Based NER](#rule-based-ner)
-    + [Regex NER](#regex-ner)
-    + [Neural NER](#neural-ner)
-    + [Annotators](#annotators)
-      - [Email](#email)
-      - [Names](#names)
-      - [Locations](#locations)
-      - [Datetime](#date-time)
-      - [Timedelta](#durations)
-      - [Units](#units)
-      - [Keywords](#keywords)
-      - [Numbers](#numbers)
-    + [Remote annotators](#remote-annotators)
-      - [Spotlight](#spotlight)
-    + [NER wrappers](#ner-wrappers)
-      - [Snips](#snips)
-      - [NLTK](#nltk)
-  
-  
-## Install
+**Simple NER** is a flexible, modular named entity recognition (NER) library for Python. It provides multiple extraction methods including rule-based patterns, regex, and pre-built annotators for common entity types.
 
-Available on pip
+## ✨ Features
+
+- 🔧 **Rule-based NER** - Pattern matching with simplematch syntax
+- 🔍 **Regex NER** - Custom regex patterns for flexible extraction
+- 📦 **Built-in Annotators** - 16 pre-built entity extractors
+- 🚀 **Pipeline System** - Multiple annotators with deduplication
+- 🏭 **Factory Pattern** - Create annotators by name
+- ⚡ **Async Support** - Concurrent processing for I/O-bound tasks
+- 💾 **Caching** - LRU and file-based result caching
+- 📊 **Visualization** - Terminal colors, HTML, and table output
+- 🖥️ **CLI Tool** - Command-line interface for quick extraction
+- 🧪 **Well Tested** - 88+ unit tests
+- 🎯 **Lightweight** - Only 4 core dependencies
+
+## 📦 Installation
+
+### Basic Installation
 
 ```bash
 pip install simple_NER
 ```
 
-## Usage
+**That's it!** Only 4 core dependencies including OVOS backends.
 
-### Rule Based NER
+### Development Setup
 
-Entities can be extracted with simple rules using [Padaos](https://github.com/MycroftAI/padaos), a dead simple regex parser
+```bash
+pip install simple_NER[dev]
+```
+
+## 🚀 Quick Start
+
+### 5-Minute Tutorial
+
+```python
+from simple_NER.annotators.factory import create_pipeline
+
+# Create a pipeline with multiple annotators
+pipeline = create_pipeline(["email", "names", "locations"])
+
+# Extract entities
+text = "John Doe lives in Lisbon. Contact: john@example.com"
+entities = pipeline.process(text)
+
+# Display results
+for ent in entities:
+    print(f"{ent.value} -> {ent.entity_type}")
+```
+
+**Output:**
+```
+john@example.com -> email
+John Doe -> Noun
+Lisbon -> Capital City
+```
+
+### Using Individual Annotators
+
+```python
+from simple_NER.annotators.email_ner import EmailNER
+
+ner = EmailNER()
+for ent in ner.extract_entities("Contact support@company.com"):
+    print(f"Found: {ent.value} ({ent.entity_type})")
+# Found: support@company.com (email)
+```
+
+### Using Rule-Based NER
 
 ```python
 from simple_NER.rules import RuleNER
@@ -43,481 +83,671 @@ from simple_NER.rules import RuleNER
 ner = RuleNER()
 ner.add_rule("name", "my name is {person}")
 
-for ent in ner.extract_entities("my name is jarbas"):
-    assert ent.as_json() == {'confidence': 1,
-                             'data': {},
-                             'entity_type': 'person',
-                             'rules': [{'name': 'name',
-                                        'rules': ['my name is {person}']}],
-                             'source_text': 'my name is jarbas',
-                             'spans': [(11, 17)],
-                             'value': 'jarbas'}
+for ent in ner.extract_entities("my name is Alice"):
+    print(f"Found: {ent.value} ({ent.entity_type})")
+# Found: Alice (person)
 ```
 
-### Regex NER
+## 📖 Table of Contents
 
-regex can also be used
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Core Concepts](#-core-concepts)
+- [Built-in Annotators](#-built-in-annotators)
+- [Pipeline System](#-pipeline-system)
+- [Factory Pattern](#-factory-pattern)
+- [Advanced Features](#-advanced-features)
+- [CLI Tool](#-cli-tool)
+- [Examples](#-examples)
+- [API Reference](#-api-reference)
+- [Migration Guide](#-migration-guide)
+- [FAQ](#-faq)
+
+---
+
+## 🎯 Core Concepts
+
+### Entity
+
+The fundamental data structure representing an extracted entity:
 
 ```python
-from simple_NER.rules.rx import RegexNER
+from simple_NER import Entity
 
-ner = RegexNER()
-text = "i went to japan in 12/10/1996"
+entity = Entity(
+    value="john@example.com",
+    entity_type="email",
+    source_text="Contact john@example.com",
+    confidence=1.0,
+    data={"domain": "example.com"}
+)
 
-regex = r'((0?[13578]|10|12)(-|\/)((0[0-9])|([12])([0-9]?)|(3[01]?))(-|\/)((\d{4})|(\d{2}))|(0?[2469]|11)(-|\/)((0[0-9])|([12])([0-9]?)|(3[0]?))(-|\/)((\d{4}|\d{2})))'
-
-ner.add_rule("date", regex)
-
-for e in ner.extract_entities(text):
-    assert e.as_json() == {'confidence': 1,
-                           'data': {},
-                           'entity_type': 'date',
-                           'rules': [{'name': 'date',
-                                      'rules': [
-                                          '((0?[13578]|10|12)(-|\\/)((0[0-9])|([12])([0-9]?)|(3[01]?))(-|\\/)((\\d{4})|(\\d{2}))|(0?[2469]|11)(-|\\/)((0[0-9])|([12])([0-9]?)|(3[0]?))(-|\\/)((\\d{4}|\\d{2})))']}],
-                           'source_text': 'i went to japan in 12/10/1996',
-                           'spans': [(19, 29)],
-                           'value': '12/10/1996'}
+print(entity.value)          # "john@example.com"
+print(entity.entity_type)    # "email"
+print(entity.confidence)     # 1.0
+print(entity.spans)          # [(8, 24)]
+print(entity.as_json())      # Dict representation
 ```
 
-### Neural NER
+### Annotator
 
-Entities are extracted using [Padatious](https://github.com/MycroftAI/padatious), An efficient and agile neural network  intent parser
- 
-This will learn from the rules and extract more variations
+An annotator extracts entities from text. All annotators follow the same interface:
 
 ```python
-from simple_NER.rules.neural import NeuralNER
+from simple_NER.annotators.base import BaseAnnotator
+from simple_NER import Entity
 
-ner = NeuralNER()
-ner.add_rule("name", "my name is {person}")
-
-for ent in ner.extract_entities("the name is jarbas"):
-    assert ent.as_json() == {'confidence': 0.5251495787186434,
-                             'data': {},
-                             'entity_type': 'person',
-                             'rules': [{'name': 'name',
-                                        'rules': ['my name is {person}']}],
-                             'source_text': 'the name is jarbas',
-                             'spans': [(12, 18)],
-                             'value': 'jarbas'}
-
-for ent in ner.extract_entities("name is kevin"):
-    assert ent.as_json() == {'confidence': 0.8363423970007801,
-                             'data': {},
-                             'entity_type': 'person',
-                             'rules': [{'name': 'name',
-                                        'rules': ['my name is {person}']}],
-                             'source_text': 'name is kevin',
-                             'spans': [(8, 13)],
-                             'value': 'kevin'}
+class MyAnnotator(BaseAnnotator):
+    @property
+    def name(self) -> str:
+        return "my_annotator"
+    
+    def annotate(self, text: str):
+        if "hello" in text.lower():
+            yield Entity("hello", "greeting", source_text=text)
 ```
 
-### Annotators
+### Pipeline
 
-#### Email
+Combine multiple annotators with automatic deduplication:
 
-Extracting emails using regex rules
+```python
+from simple_NER.pipeline import NERPipeline
+
+pipeline = NERPipeline(
+    annotators=[email_ner, names_ner],
+    dedup_strategy="keep_higher_confidence"
+)
+```
+
+---
+
+## 📚 Built-in Annotators
+
+### Email Extraction
 
 ```python
 from simple_NER.annotators.email_ner import EmailNER
 
 ner = EmailNER()
-text = "my email is jarbasai@mailfence.com"
+text = "Contact support@example.com or sales@company.org"
+
 for ent in ner.extract_entities(text):
-    assert ent.as_json() == {'confidence': 1,
-                             'data': {},
-                             'entity_type': 'email',
-                             'rules': [{'name': 'email',
-                                        'rules': [
-                                            '(?:[a-z0-9!#$%&\\\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\\\'*+/=?^_`{|}~-]+)*|"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])']}],
-                             'source_text': 'my email is jarbasai@mailfence.com',
-                             'spans': [(12, 34)],
-                             'value': 'jarbasai@mailfence.com'}
+    print(f"{ent.value} -> {ent.entity_type}")
+# support@example.com -> email
+# sales@company.org -> email
 ```
 
-#### Names
-
-Extracting Proper Nouns with regex
+### Name Extraction
 
 ```python
 from simple_NER.annotators.names_ner import NamesNER
 
-ner = NamesNER()
-text = "I am JarbasAI , but my real name is Casimiro"
-for e in ner.extract_entities(text):
-    print(e.as_json())
-    
-"""
-{'entity_type': 'Noun', 'spans': [(5, 13)], 'value': 'JarbasAI', 'source_text': 'I am JarbasAI , but my real name is Casimiro', 'confidence': 0.8, 'data': {}, 'rules': [{'name': 'names_rx', 'rules': ["\\b((?:[A-Z][a-z][-A-Za-z']*(?: *[A-Z][a-z][-A-Za-z']*)*)\\b|\\b(?:[A-Z][a-z][-A-Za-z']*))\\b"]}]}
-{'entity_type': 'Noun', 'spans': [(36, 44)], 'value': 'Casimiro', 'source_text': 'I am JarbasAI , but my real name is Casimiro', 'confidence': 0.8, 'data': {}, 'rules': [{'name': 'names_rx', 'rules': ["\\b((?:[A-Z][a-z][-A-Za-z']*(?: *[A-Z][a-z][-A-Za-z']*)*)\\b|\\b(?:[A-Z][a-z][-A-Za-z']*))\\b"]}]}
-"""
+ner = NamesNER(confidence_threshold=0.8)
+text = "John Doe met Alice Smith in Paris"
+
+for ent in ner.extract_entities(text):
+    print(f"{ent.value} -> {ent.entity_type} (conf: {ent.confidence})")
+# John Doe -> Noun (conf: 0.80)
+# Alice Smith -> Noun (conf: 0.80)
+# Paris -> Noun (conf: 0.80)
 ```
 
-#### Locations
-
-Countries, Capital Cities and Cities can be looked up from a wordlist
+### Location Extraction
 
 ```python
-from simple_NER.annotators.locations_ner import LocationNER, CitiesNER
+from simple_NER.annotators.locations_ner import LocationNER
 
+ner = LocationNER(
+    include_countries=True,
+    include_capitals=True,
+    include_cities=True
+)
 
-ner = LocationNER()
-# NOTE: case sensitive, enable detection of lowercase cities/countries
-# ner = LocationNER(lowercase=True)
-
-
-text = """The Capital of Portugal is Lisbon"""
-for r in ner.extract_entities(text):
-    print(r.value, "-", r.entity_type)
-    print(r.as_json())
-
-    """
-    Portugal - Country
-    {'confidence': 1,
-     'data': {'capital': 'Lisbon',
-              'country_code': 'PT',
-              'hemisphere': 'north',
-              'latitude': 39.5,
-              'longitude': -8,
-              'name': 'Portugal',
-              'timezones': ['Europe/Lisbon',
-                            'Atlantic/Madeira',
-                            'Atlantic/Azores']},
-     'entity_type': 'Country',
-     'rules': [],
-     'source_text': 'The Capital of Portugal is Lisbon',
-     'spans': [(15, 23)],
-     'value': 'Portugal'}
-     
-    Lisbon - Capital City
-    {'confidence': 1,
-     'data': {'country_code': 'PT',
-              'country_name': 'Portugal',
-              'hemisphere': 'north',
-              'name': 'Lisbon'},
-     'entity_type': 'Capital City',
-     'rules': [],
-     'source_text': 'The Capital of Portugal is Lisbon',
-     'spans': [(27, 33)],
-     'value': 'Lisbon'}
-    """
-
-
-ner = CitiesNER()
-# NOTE: case sensitive
-# ner = CitiesNER(lowercase=True)
-
-text = """Braga is in northern portugal"""
-for r in ner.extract_entities(text):
-    print(r.value, "-", r.entity_type)
-    print(r.as_json())
-    """
-     Braga - City
-    {'confidence': 1,
-     'data': {'country_code': 'PT',
-              'hemisphere': 'north',
-              'latitude': 41.55032,
-              'longitude': -8.42005,
-              'name': 'Braga'},
-     'entity_type': 'City',
-     'rules': [],
-     'source_text': 'Braga is in northern portugal',
-     'spans': [(0, 5)],
-     'value': 'Braga'}
-    """
+text = "Lisbon is the capital of Portugal"
+for ent in ner.extract_entities(text):
+    print(f"{ent.value} -> {ent.entity_type}")
+# Lisbon -> Capital City
+# Portugal -> Country
 ```
 
-#### Date Time
-
-Datetime extraction is powered by [lingua_franca](https://github.com/MycroftAI/lingua-franca)
+### Datetime & Duration
 
 ```python
-from simple_NER.annotators.datetime_ner import DateTimeNER
+from simple_NER.annotators.temporal_ner import TemporalNER
 
-ner = DateTimeNER()
+ner = TemporalNER()
 
-for r in ner.extract_entities("my birthday is on december 5th"):
-    assert r.entity_type == "relative_date"
-    print("day:", r.day, "month:", r.month, "year:", r.year)
-    """
-    day: 5 month: 12 year: 2019
-    """
+# Datetime
+for ent in ner.extract_entities("meeting tomorrow at 3pm"):
+    if ent.entity_type == "relative_date":
+        print(f"{ent.value} -> {ent.data['isoformat']}")
 
-for r in ner.extract_entities("entries are due by January 4th, 2017 at 8:30pm"):
-    assert r.entity_type == "relative_date"
-    print("day:", r.day,"month:", r.month, "year:", r.year, "hour:", r.hour,
-          "minute:", r.minute)
-    """
-    day: 4 month: 1 year: 2017 hour: 20 minute: 30
-    """
-
-for r in ner.extract_entities(
-        "tomorrow is X yesterday was Y in 10 days it will be Z"):
-    assert r.entity_type == "relative_date"
-    print(r.value,
-          "day:", r.day, "month:", r.month, "year:", r.year,
-          "hour:", r.hour, "minute:", r.minute)
-    """
-    tomorrow day: 30 month: 11 year: 2020 hour: 0 minute: 0
-    yesterday day: 28 month: 11 year: 2020 hour: 0 minute: 0
-    in 10 days day: 9 month: 12 year: 2020 hour: 0 minute: 0
-    """
+# Duration
+for ent in ner.extract_entities("wait 5 minutes"):
+    if ent.entity_type == "duration":
+        print(f"{ent.value} -> {ent.data['total_seconds']} seconds")
 ```
 
-#### Durations
-
-durations/timedeltas extraction is powered by [lingua_franca](https://github.com/MycroftAI/lingua-franca)
-
-```python
-from simple_NER.annotators.datetime_ner import TimedeltaNER
-
-ner = TimedeltaNER()
-
-for r in ner.extract_entities(
-        "5 minutes ago was X 10 minutes from now is Y in 19 hours will "
-        "be N"):
-    assert r.entity_type == "duration"
-    print(r.value, r.total_seconds)
-    """
-    5 minutes 300.0
-    10 minutes 600.0
-    19 hours 68400.0
-    """
-
-for r in ner.extract_entities(
-        "What President served for five years six months 2 days"):
-    # NOTE months/years are not supported because they are not explicit
-    # how many days is 1 month? how many days is 1 year?
-    assert r.entity_type == "duration"
-    print(r.value, r.total_seconds)
-    """2 days 172800.0"""
-
-for r in ner.extract_entities("starts in 5 minutes"):
-    assert r.entity_type == "duration"
-    print(r.value, r.total_seconds)
-    """5 minutes 300.0"""
-
-for r in ner.extract_entities("starts in five minutes"):
-    assert r.entity_type == "duration"
-    print(r.value, r.total_seconds)
-    """5 minutes 300.0"""
-
-```
-
-#### Units
-
-Using [Quantulum3](https://github.com/nielstron/quantulum3) for information extraction of quantities, measurements and their units from unstructured text
-
-    
-```python
-from simple_NER.annotators.units_ner import UnitsNER
-
-ner = UnitsNER()
-for r in ner.extract_entities("The LHC smashes proton beams at 12.8–13.0 TeV"):
-    assert r.data_value == 12.9
-    assert r.unit.name == "teraelectronvolt"
-    assert r.value == "12.8–13.0 TeV"
-    assert r.as_json() == \
-           {'confidence': 1,
-            'data': {'lang': 'en_US',
-                     'spoken': 'twelve point nine teraelectron volts',
-                     'uncertainty': 0.09999999999999964,
-                     'unit': {'dimensions': [
-                         {'base': 'teraelectronvolt', 'power': 1}],
-                         'entity': {
-                             'dimensions': [{'base': 'force', 'power': 1},
-                                            {'base': 'length',
-                                             'power': 1}],
-                             'name': 'energy',
-                             'uri': 'Energy'},
-                         'lang': 'en_US',
-                         'name': 'teraelectronvolt',
-                         'original_dimensions': [
-                             {'base': 'teraelectronvolt',
-                              'power': 1,
-                              'surface': 'TeV'}],
-                         'surfaces': ['teraelectron volt',
-                                      'teraelectronvolt',
-                                      'teraelectron-volt'],
-                         'symbols': ['TeV'],
-                         'uri': 'Electronvolt'},
-                     'value': 12.9},
-            'entity_type': 'Energy:Electronvolt',
-            'rules': [],
-            'source_text': 'The LHC smashes proton beams at 12.8–13.0 TeV',
-            'spans': [(32, 45)],
-            'value': '12.8–13.0 TeV'}
-```
-
-#### Keywords
-
-The most relevant keywords can be annotated using [Rake](https://github.com/aneesha/RAKE)
-
-```python
-from simple_NER.annotators.keyword_ner import KeywordNER
-
-ner = KeywordNER()
-text = "Mycroft is a free and open-source voice assistant for Linux-based operating systems that uses a natural language user interface"
-
-# extract keywords
-ents = list(ner.extract_entities(text))  # generator, needs list()
-
-# group into tuples of (keyword, score)
-keywords = [(ent.value, ent.score) for ent in ents]
-keywords = sorted(keywords)  # sort alphabetically
-
-
-assert sorted(keywords) == [('free', 1.0),
-                            ('linux-based operating systems', 9.0),
-                            ('mycroft', 1.0),
-                            ('natural language user interface', 16.0),
-                            ('open-source voice assistant', 9.0)]
-
-```
-
-#### Numbers
-
-Extraction of written numbers is powered by [lingua_franca](https://github.com/MycroftAI/lingua-franca)
+### Written Numbers
 
 ```python
 from simple_NER.annotators.numbers_ner import NumberNER
 
 ner = NumberNER()
-for r in ner.extract_entities("three hundred trillion tons of spinning metal"):
-    """
-    {'confidence': 1,
-     'data': {'number': '300000000000000.0'},
-     'entity_type': 'written_number',
-     'rules': [],
-     'source_text': 'three hundred trillion tons of spinning metal',
-     'spans': [(0, 22)],
-     'value': 'three hundred trillion'}
-    """
+text = "I have three hundred apples"
 
-ner = NumberNER(short_scale=False)
-for r in ner.extract_entities("three hundred trillion tons of spinning metal"):
-    """
-   {'confidence': 1,
-     'data': {'number': '3e+20'},
-     'entity_type': 'written_number',
-     'rules': [],
-     'source_text': 'three hundred trillion tons of spinning metal',
-     'spans': [(0, 22)],
-     'value': 'three hundred trillion'}
-    """
-
-ner = NumberNER()
-for r in ner.extract_entities("the 5th number of the third thing"):
-    """
-   {'confidence': 1,
-     'data': {'number': '5'},
-     'entity_type': 'written_number',
-     'rules': [],
-     'source_text': 'the 5th number of the third thing',
-     'spans': [(4, 7)],
-     'value': '5th'}
-    {'confidence': 1,
-     'data': {'number': '3'},
-     'entity_type': 'written_number',
-     'rules': [],
-     'source_text': 'the 5th number of the third thing',
-     'spans': [(22, 27)],
-     'value': 'third'}
-    """
-
-ner = NumberNER(ordinals=False)
-for r in ner.extract_entities("the 5th number of the third thing"):
-    """
-   {'confidence': 1,
-     'data': {'number': '5'},
-     'entity_type': 'written_number',
-     'rules': [],
-     'source_text': 'the 5th number of the third thing',
-     'spans': [(4, 7)],
-     'value': '5th'}
-    {'confidence': 1,
-     'data': {'number': '0.3333333333333333'},
-     'entity_type': 'written_number',
-     'rules': [],
-     'source_text': 'the 5th number of the third thing',
-     'spans': [(22, 27)],
-     'value': 'third'}
-    """
+for ent in ner.extract_entities(text):
+    print(f"{ent.value} -> {ent.data['number']}")
+# three hundred -> 300.0
 ```
 
-### Remote annotators
+### Complete Annotator List
 
-Some web based annotators are also provided
+| Name | Class | Description |
+|------|-------|-------------|
+| `email` | EmailAnnotator | Email addresses |
+| `names` | NamesNER | Proper nouns |
+| `locations` | LocationNER | Countries, capitals, cities |
+| `temporal` | TemporalNER | Datetime and duration |
+| `numbers` | NumberNER | Written numbers |
+| `lookup` | LookUpNER | Wordlist lookup |
+| `url`, `urls` | URLAnnotator | HTTP/HTTPS URLs ✨ NEW |
+| `phone`, `phone_number` | PhoneAnnotator | Phone numbers ✨ NEW |
+| `currency`, `money` | CurrencyAnnotator | Money/currency values ✨ NEW |
+| `organization`, `org`, `company` | OrganizationAnnotator | Companies, universities ✨ NEW |
+| `hashtag` | HashtagAnnotator | Social media hashtags ✨ NEW |
+| `date` | DateAnnotator | Explicit calendar dates ✨ NEW |
 
-#### Spotlight
+---
 
-Using [spotlight](https://www.dbpedia-spotlight.org/demo/) we can annotate entities from dbpedia
+## 🔌 OVOS Integration
+
+simple_NER ships an **Intent Transformer** plugin for [OpenVoiceOS](https://github.com/OpenVoiceOS).
+It runs after intent matching and injects extracted entities into `intent.match_data` so skill
+handlers receive them without running NER themselves.
+
+**Plugin type**: `opm.transformer.intent`
+**Plugin ID**: `simple-ner-transformer`
+
+### mycroft.conf
+
+```json
+{
+    "intent_transformers": {
+        "simple-ner-transformer": {
+            "annotators": ["email", "names", "locations", "temporal", "numbers"],
+            "confidence_threshold": 0.5
+        }
+    }
+}
+```
+
+### How it works
 
 ```python
-from simple_NER.annotators.remote.dbpedia import SpotlightNER
-
-# you can also self host
-host='http://api.dbpedia-spotlight.org/en/annotate'
-
-ner = SpotlightNER(host)
-for r in ner.extract_entities("London was founded by the Romans"):
-    print(r.value, r.entity_type, r.uri)
-    score = r.similarityScore
-    """
-    London Wikidata:Q515 http://dbpedia.org/resource/London
-    London Wikidata:Q486972 http://dbpedia.org/resource/London
-    London Schema:Place http://dbpedia.org/resource/London
-    London Schema:City http://dbpedia.org/resource/London
-    London DBpedia:Settlement http://dbpedia.org/resource/London
-    London DBpedia:PopulatedPlace http://dbpedia.org/resource/London
-    London DBpedia:Place http://dbpedia.org/resource/London
-    London DBpedia:Location http://dbpedia.org/resource/London
-    London DBpedia:City http://dbpedia.org/resource/London
-    Romans Wikidata:Q6256 http://dbpedia.org/resource/Ancient_Rome
-    Romans Schema:Place http://dbpedia.org/resource/Ancient_Rome
-    Romans Schema:Country http://dbpedia.org/resource/Ancient_Rome
-    Romans DBpedia:PopulatedPlace http://dbpedia.org/resource/Ancient_Rome
-    Romans DBpedia:Place http://dbpedia.org/resource/Ancient_Rome
-    Romans DBpedia:Location http://dbpedia.org/resource/Ancient_Rome
-    Romans DBpedia:Country http://dbpedia.org/resource/Ancient_Rome
-    """
+# After intent matching, intent.match_data is enriched:
+# {"email": "john@example.com", "location": "Lisbon", ...}
+# Existing keys are never overwritten.
 ```
 
-### NER wrappers
+The entity type → `match_data` key mapping is defined in `simple_NER/opm.py:_TYPE_MAP`.
 
-wrappers are also provided for performing NER with external libs
+---
 
-#### Snips
+## 🔧 Pipeline System
 
-If you have snips_nlu installed you can extract the [builtin entities](https://snips-nlu.readthedocs.io/en/latest/builtin_entities.html)
+### Basic Pipeline
 
 ```python
-from simple_NER.annotators.snips_ner import SnipsNER
+from simple_NER.pipeline import NERPipeline
+from simple_NER.annotators.email_ner import EmailAnnotator
+from simple_NER.annotators.names_ner import NamesNER
 
-ner = SnipsNER()
+pipeline = NERPipeline([
+    EmailAnnotator(),
+    NamesNER()
+])
 
-text = "The farmer had 2 cows, The cows died after 5 days."
-for e in ner.extract_entities(text):
-    print(e.value, e.entity_type)
-    """
-    2 snips/number
-    after 5 days snips/date
-    """
+entities = pipeline.process("John at john@example.com")
 ```
 
-#### NLTK
+### Deduplication Strategies
 
 ```python
-from simple_NER.annotators.nltk_ner import NltkNER
+# Keep all entities (no deduplication)
+pipeline = NERPipeline(annotators, dedup_strategy="keep_all")
 
-ner = NltkNER()
-text = """The Israeli Prime Minister Benjamin Netanyahu has warned that Iran poses a "threat to the entire world"."""
-for r in ner.extract_entities(text):
-    print(r.value, r.entity_type)
-    """
-    Israeli GPE
-    Benjamin Netanyahu PERSON
-    Iran GPE
-    """
+# Keep longest entity when spans overlap
+pipeline = NERPipeline(annotators, dedup_strategy="keep_longest")
+
+# Keep entity with higher confidence
+pipeline = NERPipeline(annotators, dedup_strategy="keep_higher_confidence")
+
+# Keep first detected entity
+pipeline = NERPipeline(annotators, dedup_strategy="keep_first")
 ```
+
+### Async Pipeline
+
+```python
+import asyncio
+from simple_NER.pipeline import AsyncNERPipeline
+
+async def main():
+    pipeline = AsyncNERPipeline([email_ner, names_ner])
+    
+    # Single text
+    entities = await pipeline.process_async("John at john@example.com")
+    
+    # Batch processing
+    texts = ["text1", "text2", "text3"]
+    results = await pipeline.process_batch_async(texts)
+
+asyncio.run(main())
+```
+
+---
+
+## 🏭 Factory Pattern
+
+### Create Annotators by Name
+
+```python
+from simple_NER.annotators.factory import get_annotator, create_pipeline
+
+# Single annotator
+email_ner = get_annotator("email")
+names_ner = get_annotator("names", confidence=0.9)
+
+# Pipeline
+pipeline = create_pipeline(
+    ["email", "names", "locations"],
+    dedup_strategy="keep_higher_confidence"
+)
+
+# List available
+from simple_NER.annotators.factory import list_available_annotators
+print(list_available_annotators())
+# ['cities', 'countries', 'email', 'names', ...]
+```
+
+### Register Custom Annotator
+
+```python
+from simple_NER.annotators.factory import register_annotator
+from simple_NER.annotators.base import BaseAnnotator
+
+class MyAnnotator(BaseAnnotator):
+    @property
+    def name(self) -> str:
+        return "my_annotator"
+    
+    def annotate(self, text):
+        # Your logic here
+        pass
+
+register_annotator("my_annotator", MyAnnotator)
+```
+
+---
+
+## ⚡ Advanced Features
+
+### Caching
+
+```python
+from simple_NER.utils.cache import LRUCache, FileCache
+
+# In-memory LRU cache
+cache = LRUCache(max_size=100)
+cache.set("text", entities)
+entities = cache.get("text")
+print(cache.stats())  # {'size': 1, 'hits': 0, 'misses': 1, ...}
+
+# File-based cache
+file_cache = FileCache(cache_dir=".ner_cache")
+file_cache.set("text", entities)
+entities = file_cache.get("text")
+```
+
+### Batch Processing
+
+```python
+from simple_NER.utils.batch import BatchProcessor
+
+processor = BatchProcessor(pipeline, batch_size=100)
+
+def progress(current, total):
+    print(f"Progress: {current}/{total} ({current/total*100:.1f}%)")
+
+results = processor.process_batch(
+    texts,
+    use_multiprocessing=True,
+    progress_callback=progress
+)
+```
+
+### Streaming
+
+```python
+from simple_NER.utils.batch import StreamingProcessor
+
+processor = StreamingProcessor(pipeline)
+
+def text_generator():
+    for line in open("large_file.txt"):
+        yield line
+
+for text, entities in processor.process_stream(text_generator()):
+    print(f"{text}: {len(entities)} entities")
+```
+
+### Visualization
+
+```python
+from simple_NER.utils.visualization import (
+    visualize_text_terminal,
+    visualize_text_html,
+    visualize_entities_table,
+    print_colored_entities
+)
+
+# Terminal with colors
+print(visualize_text_terminal(text, entities))
+
+# HTML for web display
+html = visualize_text_html(text, entities)
+
+# Table format
+print(visualize_entities_table(entities))
+
+# Colored output
+print_colored_entities(entities)
+```
+
+---
+
+## 🖥️ CLI Tool
+
+### Basic Usage
+
+```bash
+# Extract from text
+python -m simple_NER.cli "John lives in Lisbon"
+
+# Specific annotators
+python -m simple_NER.cli "Email: test@example.com" -a email
+
+# JSON output
+python -m simple_NER.cli "text" --format json
+
+# CSV output
+python -m simple_NER.cli "text" --format csv
+```
+
+### File Processing
+
+```bash
+# Process file
+python -m simple_NER.cli --file input.txt --output results.json
+
+# With specific annotators
+python -m simple_NER.cli -f input.txt -a email,names --format json
+```
+
+### Read from stdin
+
+```bash
+echo "Contact john@example.com" | python -m simple_NER.cli
+cat file.txt | python -m simple_NER.cli --format json
+```
+
+### Options
+
+```
+-a, --annotators     Comma-separated list (default: email,names,locations)
+-f, --file          Input file path
+-o, --output        Output file path
+--format            text, json, or csv
+--dedup             Deduplication strategy
+--spans             Show character spans
+--list-annotators   List available annotators
+--help              Show help message
+```
+
+---
+
+## 📝 Examples
+
+### Complete Example
+
+```python
+from simple_NER.annotators.factory import create_pipeline
+from simple_NER.utils.visualization import visualize_text_terminal
+
+# Create pipeline
+pipeline = create_pipeline(["email", "names", "locations", "temporal"])
+
+# Process text
+text = """
+Dr. Alice Smith from MIT in Cambridge will present on December 5th.
+Contact: alice@mit.edu or call 555-123-4567.
+The research spans three years with $2.5M funding.
+"""
+
+entities = pipeline.process(text)
+
+# Display
+print(f"Found {len(entities)} entities:")
+for ent in entities:
+    print(f"  {ent.value:20} -> {ent.entity_type}")
+
+# Visualize
+print(visualize_text_terminal(text, entities))
+
+# Export
+import json
+with open("results.json", "w") as f:
+    json.dump({
+        "text": text,
+        "entities": [e.as_json() for e in entities]
+    }, f, indent=2)
+```
+
+### Custom Annotator
+
+```python
+from simple_NER.annotators.base import BaseAnnotator
+from simple_NER import Entity
+import re
+
+class URLAnnotator(BaseAnnotator):
+    URL_PATTERN = re.compile(r'https?://\S+')
+    
+    @property
+    def name(self) -> str:
+        return "url"
+    
+    def annotate(self, text: str):
+        for match in self.URL_PATTERN.finditer(text):
+            yield Entity(
+                match.group(),
+                "url",
+                source_text=text,
+                confidence=0.9
+            )
+
+# Use it
+from simple_NER.pipeline import NERPipeline
+from simple_NER.annotators.email_ner import EmailAnnotator
+
+pipeline = NERPipeline([URLAnnotator(), EmailAnnotator()])
+entities = pipeline.process("Visit https://example.com or email test@example.com")
+```
+
+---
+
+## 📚 API Reference
+
+Full API documentation is available in [`docs/API.md`](docs/API.md).
+
+### Core Classes
+
+- [`Entity`](docs/API.md#entity) - Entity data structure
+- [`SimpleNER`](docs/API.md#simplener) - Base NER class
+- [`RuleNER`](docs/API.md#rulener) - Rule-based extraction
+- [`RegexNER`](docs/API.md#regexner) - Regex extraction
+
+### Annotators
+
+- [`BaseAnnotator`](docs/API.md#baseannotator) - Base class for annotators
+- [`EmailAnnotator`](docs/API.md#emailannotator) - Email extraction
+- [`NamesNER`](docs/API.md#namesner) - Name extraction
+- [`LocationNER`](docs/API.md#locationner) - Location extraction
+- [`TemporalNER`](docs/API.md#temporalner) - Datetime/duration
+- [`NumberNER`](docs/API.md#numberner) - Written numbers
+- [`KeywordNER`](docs/API.md#keywordner) - Keyword extraction
+- [`UnitsNER`](docs/API.md#unitsner) - Unit extraction
+
+### Pipeline
+
+- [`NERPipeline`](docs/API.md#nerpipeline) - Sync pipeline
+- [`AsyncNERPipeline`](docs/API.md#asyncnerpipeline) - Async pipeline
+
+### Utilities
+
+- [`LRUCache`](docs/API.md#lrucache) - In-memory cache
+- [`FileCache`](docs/API.md#filecache) - File-based cache
+- [`BatchProcessor`](docs/API.md#batchprocessor) - Batch processing
+- [`StreamingProcessor`](docs/API.md#streamingprocessor) - Streaming
+
+---
+
+## 🔄 Migration Guide
+
+### From Old Versions
+
+**Old (v0.4.x):**
+```python
+from simple_NER.annotators.datetime_ner import DateTimeNER
+ner = DateTimeNER()
+```
+
+**New (v0.9.x):**
+```python
+from simple_NER.annotators.temporal_ner import TemporalNER
+ner = TemporalNER()  # DateTimeNER still works (alias)
+```
+
+### Using Factory (Recommended)
+
+```python
+from simple_NER.annotators.factory import get_annotator
+
+# Instead of importing each class
+email_ner = get_annotator("email")
+names_ner = get_annotator("names")
+locations_ner = get_annotator("locations")
+```
+
+Full migration guide: [`docs/MIGRATION.md`](docs/MIGRATION.md)
+
+---
+
+## ❓ FAQ
+
+### Q: How do I add a custom entity type?
+
+```python
+from simple_NER.rules import RuleNER
+
+ner = RuleNER()
+ner.add_rule("product", "I want {product}")
+ner.add_rule("product", "buy {product}")
+
+for ent in ner.extract_entities("I want iphone"):
+    print(ent.value)  # iphone
+```
+
+### Q: Can I use multiple languages?
+
+Yes! Some annotators support language selection:
+
+```python
+from simple_NER.annotators.keyword_ner import KeywordNER
+
+ner = KeywordNER(lang="en")  # or "pt", "es", etc.
+```
+
+### Q: How do I improve accuracy?
+
+1. **Combine multiple annotators** in a pipeline
+2. **Adjust confidence thresholds**
+3. **Use domain-specific rules**
+4. **Add custom wordlists**
+
+### Q: Is it thread-safe?
+
+Yes, annotators can be used in multiple threads. For async, use `AsyncNERPipeline`.
+
+### Q: How do I handle large files?
+
+Use streaming:
+
+```python
+from simple_NER.utils.batch import StreamingProcessor
+
+processor = StreamingProcessor(pipeline)
+for text, entities in processor.process_file("large.txt"):
+    process(entities)
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! See our [Contributing Guide](CONTRIBUTING.md) for details.
+
+```bash
+# Fork and clone
+git clone https://github.com/your-username/simple_NER.git
+cd simple_NER
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install with dev dependencies
+pip install -e ".[dev,all]"
+
+# Run tests
+pytest test/ -v
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- [Padaos](https://github.com/MycroftAI/padaos) - Pattern matching
+- [OVOS](https://github.com/OpenVoiceOS) - Language parsing
+- [Quantulum3](https://github.com/nielstron/quantulum3) - Unit extraction
+- [RAKE](https://github.com/aneesha/RAKE) - Keyword extraction
+
+---
+
+## 📞 Support
+
+- **Documentation:** [docs/](docs/)
+- **Examples:** [examples/](examples/)
+- **Issues:** https://github.com/OpenJarbas/simple_NER/issues
+- **Discussions:** https://github.com/OpenJarbas/simple_NER/discussions

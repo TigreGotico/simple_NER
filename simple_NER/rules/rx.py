@@ -1,5 +1,6 @@
 import re
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 from simple_NER import Entity
 from simple_NER.rules import Rule, RuleNER
@@ -7,10 +8,6 @@ from simple_NER.rules import Rule, RuleNER
 
 class RegexNER(RuleNER):
     """Regex-pattern based NER (extends :class:`RuleNER`)."""
-
-    def __init__(self) -> None:
-        self._rules: dict[str, list[Rule]] = {}
-        self._examples: dict[str, list[Entity]] = {}
 
     def _create_regex(self, rule: str) -> re.Pattern[str] | None:
         """Compile *rule* as a case-insensitive regex.

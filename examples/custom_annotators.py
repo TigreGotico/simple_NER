@@ -1,5 +1,5 @@
-from simple_NER.annotators import NERWrapper
 from simple_NER import Entity
+from simple_NER.annotators import NERWrapper
 
 
 def extract_hitler(text):

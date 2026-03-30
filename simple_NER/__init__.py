@@ -1,5 +1,7 @@
 import re
-from typing import Any, Generator, Iterator
+from collections.abc import Generator, Iterator
+from typing import Any
+
 from quebra_frases import find_spans
 
 
@@ -66,7 +68,7 @@ class Entity:
                 setattr(self, k, ns)
             elif k == "value":
                 # Avoid shadowing the .value property
-                setattr(self, "data_value", v)
+                self.data_value = v
             else:
                 setattr(self, k, v)
 

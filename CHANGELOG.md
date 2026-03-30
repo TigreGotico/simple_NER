@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Complete example script demonstrating all features (`examples/complete_example.py`)
+- Comprehensive unit tests for annotators (`test/test_annotators.py`)
+- Contributing guidelines (`CONTRIBUTING.md`)
+- Pre-commit hooks configuration (`.pre-commit-config.yaml`)
+- Python 3.13 support
+
+### Changed
+
+- Updated `pyproject.toml` with comprehensive metadata and classifiers
+- Modernized GitHub Actions workflows (build_tests.yml, license_tests.yml)
+- Improved optional dependencies structure
+- Enhanced test coverage with pytest configuration
+
+### Fixed
+
+- Updated dependencies to be compatible with current Python versions
+- Fixed test compatibility issues
+
+### Removed
+
+- Deprecated Python 3.8 and 3.9 support
+
+## [0.8.1] - 2026-03-30
+
+### Added
+
+- Type hints throughout the codebase
+- Ruff linting configuration
+- mypy type checking configuration
+- pytest configuration in pyproject.toml
+- Coverage reporting configuration
+
 ## [0.4.3]  - 2020-04-12
 
 ### Added

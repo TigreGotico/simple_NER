@@ -4,29 +4,98 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "simple_NER"
-version = "0.8.1"
+version = "0.9.0"
 description = "Rule-based Named Entity Recognition"
 license = { text = "MIT" }
 authors = [{ name = "jarbasAI", email = "jarbasai@mailfence.com" }]
+maintainers = [{ name = "OpenJarbas Community", email = "jarbasai@mailfence.com" }]
 readme = "readme.md"
 requires-python = ">=3.10"
+keywords = ["NER", "named-entity-recognition", "NLP", "rule-based", "regex", "entity-extraction"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
 dependencies = [
     "simplematch",
     "quebra_frases>=0.3.7",
+    "ovos-date-parser",
+    "ovos-number-parser",
 ]
 
 [project.optional-dependencies]
-datetime = ["lingua_nostra>=0.4.2"]
-units = ["quantulum3"]
-keywords = ["RAKEkeywords>=0.2.0"]
-nltk = ["nltk"]
-remote = ["requests"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+    "pre-commit>=3.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/OpenJarbas/simple_NER"
+Repository = "https://github.com/OpenJarbas/simple_NER.git"
+Issues = "https://github.com/OpenJarbas/simple_NER/issues"
+Changelog = "https://github.com/OpenJarbas/simple_NER/blob/main/CHANGELOG.md"
+
+[project.entry-points."opm.transformer.intent"]
+simple-ner-transformer = "simple_NER.opm:SimpleNERIntentTransformer"
 
 [tool.setuptools.packages.find]
 include = ["simple_NER*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.voc", "*.json", "*.txt"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+lint.select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "RUF", # ruff-specific rules
+]
+lint.ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["simple_NER"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["simple_NER"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "def __repr__",
+]
