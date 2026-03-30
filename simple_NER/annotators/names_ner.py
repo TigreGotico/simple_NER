@@ -40,6 +40,26 @@ class NamesNER(BaseAnnotator):
         r"\b(?:[A-Z][a-z][-A-Za-z']*))\b"
     )
 
+    # Common English words that are often capitalised (sentence-start, titles)
+    # but are not names.  Kept deliberately small — only high-frequency culprits.
+    _STOPWORDS: frozenset[str] = frozenset({
+        "The", "A", "An", "And", "But", "Or", "Nor", "For", "Yet", "So",
+        "In", "On", "At", "To", "By", "Of", "Up", "As", "Is", "It",
+        "He", "She", "We", "They", "You", "I",
+        "This", "That", "These", "Those",
+        "There", "Here", "Where", "When", "What", "Which", "Who", "How",
+        "My", "Your", "His", "Her", "Its", "Our", "Their",
+        "Not", "No", "Yes",
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+        # Common sentence-opening words
+        "However", "Therefore", "Furthermore", "Moreover", "Although", "Because",
+        "Since", "While", "After", "Before", "During", "Between",
+        "Store", "Street", "Avenue", "Road", "City", "Town", "Park",
+        "University", "College", "School", "Hospital", "Church", "Hotel",
+    })
+
     def __init__(
         self,
         confidence_threshold: float = 0.65,
@@ -75,8 +95,10 @@ class NamesNER(BaseAnnotator):
         for match in self.NAMES_PATTERN.finditer(text):
             word = match.group()
 
-            # Skip words that are too short
+            # Skip words that are too short or are common non-name words
             if len(word) < self._min_word_length:
+                continue
+            if word in self._STOPWORDS:
                 continue
 
             # Calculate confidence based on capitalization pattern

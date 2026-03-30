@@ -192,3 +192,22 @@
 ```
 
 The 3 previously skipped `TestTemporalNER` tests now pass — `ovos-date-parser` and `ovos-number-parser` were installed and the API compatibility shims were added.
+
+---
+
+## 2026-03-31 — IDN URLs, NamesNER stopword filter, URL Unicode
+
+**AI Model**: claude-sonnet-4-6
+**Oversight**: Human-directed; AI executed all changes
+
+### Actions Taken
+
+1. **simple_NER/annotators/url_ner.py** — Added IDN (internationalized domain name) support. `URL_PATTERN` now uses `_LABEL_CHAR` covering Latin Extended-A/B (`\u00C0-\u024F`), Cyrillic (`\u0400-\u04FF`), CJK (`\u4E00-\u9FFF`), Hiragana, Katakana. Added `re.UNICODE` flag. `https://münchen.de` now detected.
+
+2. **simple_NER/annotators/names_ner.py** — Added `_STOPWORDS` frozenset (~50 entries) filtering high-frequency false positives: sentence-opening words (The, A, In, On…), pronouns, weekdays, months, and common English nouns that appear capitalised. Checked before yielding each entity.
+
+### Test results
+
+```
+206 passed
+```

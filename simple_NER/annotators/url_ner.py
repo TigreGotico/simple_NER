@@ -14,7 +14,8 @@ from simple_NER.annotators.base import BaseAnnotator
 class URLAnnotator(BaseAnnotator):
     """Extract URLs from text.
 
-    Language support: language-agnostic (regex on URL syntax).
+    Language support: language-agnostic. Supports internationalized domain
+    names (IDN) with Unicode characters (e.g. ``https://münchen.de``).
 
     This annotator identifies HTTP/HTTPS URLs using regex patterns.
 
@@ -29,16 +30,20 @@ class URLAnnotator(BaseAnnotator):
         ```
     """
 
-    # Comprehensive URL pattern
+    # URL label character: ASCII alnum + Unicode letters/digits (IDN support)
+    _LABEL_CHAR = r'[A-Za-z0-9\u00C0-\u024F\u0400-\u04FF\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF]'
+    _LABEL = rf'{_LABEL_CHAR}(?:[{_LABEL_CHAR[1:-1]}\-]{{0,61}}{_LABEL_CHAR})?'
+
     URL_PATTERN = re.compile(
-        r'https?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+'  # domain
-        r'[A-Z]{2,6}\.?|'
-        r'localhost|'  # localhost
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # IP address
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)?',  # path
-        re.IGNORECASE
+        r'https?://'                                         # scheme
+        r'(?:'
+        rf'(?:{_LABEL}\.)+{_LABEL}'                          # hostname (including IDN)
+        r'|localhost'                                        # localhost
+        r'|\d{1,3}(?:\.\d{1,3}){3}'                         # IPv4
+        r')'
+        r'(?::\d{1,5})?'                                     # optional port
+        r'(?:/[^\s]*)?',                                     # optional path/query
+        re.IGNORECASE | re.UNICODE,
     )
 
     def __init__(self, confidence: float = 0.95) -> None:
