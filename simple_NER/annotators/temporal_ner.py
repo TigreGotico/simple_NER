@@ -23,7 +23,10 @@ try:
         nice_date,
         nice_duration,
     )
-    from ovos_number_parser import convert_words_to_numbers as _convert_numbers
+    try:
+        from ovos_number_parser import numbers_to_digits as _convert_numbers
+    except ImportError:
+        from ovos_number_parser import convert_words_to_numbers as _convert_numbers  # type: ignore[no-redef]
     _OVOS_AVAILABLE = True
 except ImportError:
     _OVOS_AVAILABLE = False
@@ -128,11 +131,11 @@ class TemporalNER(BaseAnnotator):
             return
 
         # Convert written numbers to digits for better parsing
-        conv = _convert_numbers(text, lang=self.lang) if _convert_numbers else text
+        conv = _convert_numbers(text, self.lang) if _convert_numbers else text
         if conv != text:
             LOG.debug(f"Text normalized: '{text}' -> '{conv}'")
 
-        dt_result = extract_datetime(conv, self.anchor_date, lang=self.lang)
+        dt_result = extract_datetime(conv, self.lang, self.anchor_date)
         if dt_result:
             date, remainder = dt_result
             diff = TextDiff(conv, remainder)
@@ -141,7 +144,7 @@ class TemporalNER(BaseAnnotator):
                 value = " ".join(conv.split()[span1[0] : span1[1]])
 
                 # Re-extract to get accurate date for this specific value
-                date_result = extract_datetime(value, self.anchor_date, lang=self.lang)
+                date_result = extract_datetime(value, self.lang, self.anchor_date)
                 if date_result:
                     date = date_result[0]
                     data = {
@@ -153,7 +156,7 @@ class TemporalNER(BaseAnnotator):
                         "hour": date.hour,
                         "minute": date.minute,
                         "year": date.year,
-                        "spoken": nice_date(date, now=self.anchor_date, lang=self.lang) if nice_date else "",
+                        "spoken": nice_date(date, self.lang, now=self.anchor_date) if nice_date else "",
                     }
                     yield Entity(
                         value,
@@ -178,11 +181,11 @@ class TemporalNER(BaseAnnotator):
             return
 
         # Convert written numbers to digits for better parsing
-        conv = _convert_numbers(text, lang=self.lang) if _convert_numbers else text
+        conv = _convert_numbers(text, self.lang) if _convert_numbers else text
         if conv != text:
             LOG.debug(f"Text normalized: '{text}' -> '{conv}'")
 
-        delta, remainder = extract_duration(text, lang=self.lang)
+        delta, remainder = extract_duration(text, self.lang)
         if delta:
             diff = TextDiff(conv, remainder)
 
@@ -190,14 +193,14 @@ class TemporalNER(BaseAnnotator):
                 value = " ".join(conv.split()[span1[0] : span1[1]])
 
                 # Re-extract to get accurate duration for this specific value
-                delta_result, _ = extract_duration(value, lang=self.lang)
+                delta_result, _ = extract_duration(value, self.lang)
                 if delta_result:
                     data = {
                         "days": delta_result.days,
                         "seconds": delta_result.seconds,
                         "microseconds": delta_result.microseconds,
                         "total_seconds": delta_result.total_seconds(),
-                        "spoken": nice_duration(delta_result, lang=self.lang).strip() if nice_duration else "",
+                        "spoken": nice_duration(delta_result.total_seconds(), self.lang).strip() if nice_duration else "",
                     }
                     yield Entity(
                         value,

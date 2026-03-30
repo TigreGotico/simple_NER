@@ -160,3 +160,35 @@
 ```
 203 passed, 3 skipped
 ```
+
+---
+
+## 2026-03-31 — API compatibility fixes + CurrencyAnnotator bug fix
+
+**AI Model**: claude-sonnet-4-6
+**Oversight**: Human-directed; AI executed all changes
+
+### Actions Taken
+
+1. **simple_NER/annotators/numbers_ner.py** — Added compatibility shim for `ovos-number-parser` API change: `convert_words_to_numbers` → `numbers_to_digits(utterance, lang, scale)`. Auto-detected at import time via `inspect.signature`. `short_scale` mapped to `Scale.SHORT/LONG` enum.
+
+2. **simple_NER/annotators/temporal_ner.py** — Same `_convert_numbers` shim applied. All `ovos_date_parser` calls updated to new positional `lang` API:
+   - `extract_datetime(text, lang, anchorDate)` (was `extract_datetime(text, anchorDate, lang=lang)`)
+   - `extract_duration(text, lang)` (was `extract_duration(text, lang=lang)`)
+   - `nice_date(dt, lang, now=anchor)` (was `nice_date(dt, now=anchor, lang=lang)`)
+   - `nice_duration(total_seconds, lang)` (was `nice_duration(timedelta, lang=lang)`)
+
+3. **simple_NER/annotators/currency_ner.py** — Fixed TECH-009:
+   - `CURRENCY_PATTERN` now built by `_build_pattern()` classmethod instead of inline.
+   - Multi-char symbols `R$`, `A$`, `C$` handled via regex alternation, not character class — eliminating false matches on bare `R`/`A`/`C` letters.
+   - `_parse_currency()` symbol loop now sorts longest-first so `A$` beats `$`.
+
+4. **AUDIT.md** — Closed TECH-009 and added TECH-010 (now also closed).
+
+### Test results
+
+```
+206 passed (was 203 passed + 3 skipped)
+```
+
+The 3 previously skipped `TestTemporalNER` tests now pass — `ovos-date-parser` and `ovos-number-parser` were installed and the API compatibility shims were added.

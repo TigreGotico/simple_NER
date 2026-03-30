@@ -15,7 +15,10 @@ from simple_NER.utils.diff import TextDiff
 from simple_NER.utils.log import LOG
 
 try:
-    from ovos_number_parser import convert_words_to_numbers as _convert_numbers
+    try:
+        from ovos_number_parser import numbers_to_digits as _convert_numbers
+    except ImportError:
+        from ovos_number_parser import convert_words_to_numbers as _convert_numbers  # type: ignore[no-redef]
     _OVOS_AVAILABLE = True
 except ImportError:
     _OVOS_AVAILABLE = False
@@ -102,19 +105,25 @@ class NumberNER(BaseAnnotator):
                 LOG.debug(f"Text normalized: '{original_text}' -> '{text}'")
 
         try:
-            # Convert written numbers to digits
-            if self.ordinals:
-                replaced = _convert_numbers(
-                    text,
-                    short_scale=self.short_scale,
-                    ordinals=True,
-                    lang=self.lang,
-                )
+            # Call the appropriate API — newer ovos-number-parser (≥0.1) uses
+            # numbers_to_digits(utterance, lang, scale) while older builds
+            # used convert_words_to_numbers(text, short_scale, ordinals, lang).
+            import inspect as _inspect
+            _sig = _inspect.signature(_convert_numbers)
+            if "scale" in _sig.parameters:
+                # New API: Scale enum, no ordinals kwarg
+                try:
+                    from ovos_number_parser.util import Scale as _Scale
+                    _scale = _Scale.SHORT if self.short_scale else _Scale.LONG
+                except ImportError:
+                    _scale = "short" if self.short_scale else "long"  # type: ignore[assignment]
+                replaced = _convert_numbers(text, self.lang, _scale)
             else:
+                # Legacy API
                 replaced = _convert_numbers(
                     text,
                     short_scale=self.short_scale,
-                    ordinals=False,
+                    ordinals=self.ordinals,
                     lang=self.lang,
                 )
 

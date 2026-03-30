@@ -87,29 +87,32 @@ class CurrencyAnnotator(BaseAnnotator):
     # Amount pattern fragment
     _AMT = r'(?:\d{1,3}(?:[,\s]\d{3})*|\d+)(?:[.,]\d{1,2})?'
 
-    # Pattern for currency values
-    CURRENCY_PATTERN = re.compile(
-        r'(?:'
-        r'(?:[' + ''.join(CURRENCY_SYMBOLS.keys()) + r'])\s*'  # Symbol before amount
-        + _AMT +
-        r')'
-        r'|'
-        r'(?:'
-        + _AMT +
-        r'\s*(?:' + '|'.join(CURRENCY_SYMBOLS.values()) + r')'  # Amount then ISO code
-        r')'
-        r'|'
-        r'(?:'
-        r'(?:USD|EUR|GBP|JPY|INR|BRL|RUB|KRW|TRY|AUD|CAD|CHF|SEK|NOK|DKK)\s+'  # ISO code before
-        + _AMT +
-        r')'
-        r'|'
-        r'(?:'
-        + _AMT +
-        r'\s+(?:' + '|'.join(sorted(WRITTEN_WORDS.keys(), key=len, reverse=True)) + r')\b'  # Amount then written word
-        r')',
-        re.IGNORECASE
-    )
+    # Currency symbols split by length to avoid character-class bugs.
+    # Multi-char symbols (R$, A$, C$) MUST use alternation, not [...].
+    _MULTI_CHAR_SYMBOLS = ['R$', 'A$', 'C$']
+    _SINGLE_CHAR_SYMBOLS = [s for s in CURRENCY_SYMBOLS.keys() if len(s) == 1]
+
+    @classmethod
+    def _build_pattern(cls) -> re.Pattern[str]:
+        """Build the currency regex pattern at class definition time."""
+        amt = cls._AMT
+        # Longest multi-char symbols first, then single-char symbols in a set
+        sym_alt = (
+            '|'.join(re.escape(s) for s in cls._MULTI_CHAR_SYMBOLS)
+            + '|'
+            + '[' + ''.join(re.escape(s) for s in cls._SINGLE_CHAR_SYMBOLS) + ']'
+        )
+        iso_codes = '|'.join(cls.CURRENCY_SYMBOLS.values())
+        written = '|'.join(sorted(cls.WRITTEN_WORDS.keys(), key=len, reverse=True))
+        return re.compile(
+            rf'(?:(?:{sym_alt})\s*{amt})'           # Symbol then amount
+            rf'|(?:{amt}\s*(?:{iso_codes}))'         # Amount then ISO code
+            rf'|(?:(?:{iso_codes})\s+{amt})'         # ISO code then amount
+            rf'|(?:\b{amt}\s+(?:{written})\b)',      # Amount then written word
+            re.IGNORECASE,
+        )
+
+    CURRENCY_PATTERN: re.Pattern[str] = None  # type: ignore[assignment]  # set below
 
     def __init__(self, confidence: float = 0.9) -> None:
         """Initialize CurrencyAnnotator.
@@ -174,8 +177,8 @@ class CurrencyAnnotator(BaseAnnotator):
         # Detect currency
         currency = None
 
-        # Check for symbol
-        for symbol, code in self.CURRENCY_SYMBOLS.items():
+        # Check for symbol — longest first so "A$" beats "$"
+        for symbol, code in sorted(self.CURRENCY_SYMBOLS.items(), key=lambda x: len(x[0]), reverse=True):
             if symbol in text:
                 currency = code
                 break
@@ -214,6 +217,9 @@ class CurrencyAnnotator(BaseAnnotator):
             if code == currency:
                 return symbol
         return currency
+
+
+CurrencyAnnotator.CURRENCY_PATTERN = CurrencyAnnotator._build_pattern()
 
 
 if __name__ == "__main__":
