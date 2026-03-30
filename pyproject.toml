@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simple_NER"
+version = "0.8.1"
+description = "Rule-based Named Entity Recognition"
+license = { text = "MIT" }
+authors = [{ name = "jarbasAI", email = "jarbasai@mailfence.com" }]
+readme = "readme.md"
+requires-python = ">=3.10"
+dependencies = [
+    "simplematch",
+    "quebra_frases>=0.3.7",
+]
+
+[project.optional-dependencies]
+datetime = ["lingua_nostra>=0.4.2"]
+units = ["quantulum3"]
+keywords = ["RAKEkeywords>=0.2.0"]
+nltk = ["nltk"]
+remote = ["requests"]
+
+[project.urls]
+Homepage = "https://github.com/OpenJarbas/simple_NER"
+
+[tool.setuptools.packages.find]
+include = ["simple_NER*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.voc", "*.json", "*.txt"]
