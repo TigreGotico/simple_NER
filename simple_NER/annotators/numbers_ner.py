@@ -127,11 +127,19 @@ class NumberNER(BaseAnnotator):
                     lang=self.lang,
                 )
 
-            # Find differences to locate written numbers
+            # Find differences to locate written numbers.
+            # Only yield if the replacement is numeric — the new
+            # numbers_to_digits() API also normalises punctuation which
+            # produces spurious diffs for emails, phone numbers, etc.
             diff = TextDiff(text, replaced)
             for _tag, span1, span2 in diff.dif_tags():
                 value = " ".join(text.split()[span1[0] : span1[1]])
                 numeric = " ".join(replaced.split()[span2[0] : span2[1]])
+
+                # Skip diffs where the replacement isn't a pure number
+                stripped = numeric.replace(".", "").replace(",", "").replace("-", "")
+                if not stripped.lstrip("+-").isdigit():
+                    continue
 
                 data = {"number": numeric}
                 yield Entity(

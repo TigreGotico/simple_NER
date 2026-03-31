@@ -8,6 +8,8 @@ Requires: ovos-date-parser, ovos-number-parser
 """
 from __future__ import annotations
 
+import pathlib
+import re
 from collections.abc import Generator
 from datetime import datetime
 
@@ -40,6 +42,35 @@ except ImportError:
     nice_date = None  # type: ignore[assignment]
     nice_duration = None  # type: ignore[assignment]
     _convert_numbers = None  # type: ignore[assignment]
+
+
+_ORDINAL_RE: re.Pattern[str] = re.compile(r'\d+(st|nd|rd|th)\b', re.IGNORECASE)
+
+# Resource directory containing per-language temporal_keywords.txt files.
+_RES_DIR = pathlib.Path(__file__).parent.parent / "res"
+
+
+def _load_temporal_keywords(lang: str) -> frozenset[str]:
+    """Load temporal keywords from ``res/<lang>/temporal_keywords.txt``.
+
+    Falls back to ``en-us`` if the requested language file is absent.
+    Returns an empty frozenset if neither file exists (rare; degraded mode).
+
+    Args:
+        lang: BCP-47 language tag (e.g. ``"de-de"``).
+
+    Returns:
+        Frozenset of lowercase keyword strings.
+    """
+    for candidate in (lang, "en-us"):
+        path = _RES_DIR / candidate / "temporal_keywords.txt"
+        if path.exists():
+            return frozenset(
+                line.strip().lower()
+                for line in path.read_text(encoding="utf-8").splitlines()
+                if line.strip() and not line.startswith("#")
+            )
+    return frozenset()
 
 
 class TemporalNER(BaseAnnotator):
@@ -93,6 +124,7 @@ class TemporalNER(BaseAnnotator):
         self._extract_datetime = extract_datetime
         self._extract_duration = extract_duration
         super().__init__(confidence=confidence, lang=lang)
+        self._temporal_kw: frozenset[str] = _load_temporal_keywords(lang)
 
     @property
     def name(self) -> str:
@@ -142,6 +174,19 @@ class TemporalNER(BaseAnnotator):
 
             for _tag, span1, _span2 in diff.dif_tags():
                 value = " ".join(conv.split()[span1[0] : span1[1]])
+
+                # Skip spans that are stopwords + bare number — ovos-date-parser
+                # interprets digits as times (e.g. "500" → 5:00 AM), causing
+                # false positives when currency amounts are number-normalised.
+                # A real temporal span contains at least one temporal keyword
+                # (month name, weekday, relative word) or an ordinal suffix.
+                value_lower = value.lower()
+                has_temporal = (
+                    any(kw in value_lower.split() for kw in self._temporal_kw)
+                    or _ORDINAL_RE.search(value)
+                )
+                if not has_temporal:
+                    continue
 
                 # Re-extract to get accurate date for this specific value
                 date_result = extract_datetime(value, self.lang, self.anchor_date)

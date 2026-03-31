@@ -14,12 +14,25 @@ from simple_NER.annotators.base import BaseAnnotator
 from simple_NER.utils import resolve_resource_file
 from simple_NER.utils.log import LOG
 
+try:
+    from ahocorasick_ner import AhocorasickNER as _AhocorasickNER
+    _AHOCORASICK_AVAILABLE = True
+except ImportError:
+    _AhocorasickNER = None  # type: ignore[assignment,misc]
+    _AHOCORASICK_AVAILABLE = False
+
 
 class LookUpNER(BaseAnnotator):
     """Extract entities from predefined wordlists.
 
-    This annotator loads entity lists from .entity files in the
+    This annotator loads entity lists from ``.entity`` files in the
     resource directory and matches them against input text.
+
+    Backend: uses ``ahocorasick-ner`` (Aho-Corasick automaton) when
+    available for O(N) single-pass lookup regardless of wordlist size.
+    Falls back to per-pattern ``re.search`` if the package is absent.
+
+    Language support: per-language resource files under ``res/<lang>/``.
 
     Attributes:
         lang: Language code for resource files.
@@ -49,11 +62,12 @@ class LookUpNER(BaseAnnotator):
             case_sensitive: Whether matching is case-sensitive.
             confidence: Default confidence score for entities.
         """
-        super().__init__(confidence=confidence)
-        self.lang = lang
+        super().__init__(confidence=confidence, lang=lang)
         self._case_sensitive = case_sensitive
         self.entities: dict[str, list[str]] = {}
+        self._ac: "_AhocorasickNER | None" = None
         self._load_entities()
+        self._build_automaton()
 
     @property
     def name(self) -> str:
@@ -101,8 +115,27 @@ class LookUpNER(BaseAnnotator):
         else:
             LOG.warning(f"No entity files found in {folder}")
 
+    def _build_automaton(self) -> None:
+        """Build (or rebuild) the Aho-Corasick automaton from ``self.entities``.
+
+        No-op when ``ahocorasick-ner`` is not installed.
+        """
+        if not _AHOCORASICK_AVAILABLE or not self.entities:
+            self._ac = None
+            return
+        ac = _AhocorasickNER(case_sensitive=self._case_sensitive)
+        for label, wordlist in self.entities.items():
+            for word in wordlist:
+                if word:
+                    ac.add_word(label, word)
+        ac.fit()
+        self._ac = ac
+        LOG.debug(f"LookUpNER: Aho-Corasick automaton built with {sum(len(v) for v in self.entities.values())} patterns")
+
     def annotate(self, text: str) -> Generator[Entity, None, None]:
         """Extract entities from text using wordlist lookup.
+
+        Uses Aho-Corasick automaton when available; falls back to regex.
 
         Args:
             text: Input text to analyze.
@@ -113,6 +146,19 @@ class LookUpNER(BaseAnnotator):
         if not self.entities:
             return
 
+        if self._ac is not None:
+            for match in self._ac.tag(text, min_word_len=1):
+                yield Entity(
+                    match["word"],
+                    match["label"],
+                    source_text=text,
+                    confidence=self.confidence,
+                    data={"source": "wordlist", "language": self.lang,
+                          "start": match["start"], "end": match["end"]},
+                )
+            return
+
+        # Regex fallback
         search_text = text if self._case_sensitive else text.lower()
 
         for label, wordlist in self.entities.items():
@@ -141,6 +187,7 @@ class LookUpNER(BaseAnnotator):
             words: List of words to match.
         """
         self.entities[label] = words
+        self._build_automaton()
         LOG.debug(f"Added wordlist '{label}' with {len(words)} words")
 
     def remove_wordlist(self, label: str) -> bool:
@@ -154,6 +201,7 @@ class LookUpNER(BaseAnnotator):
         """
         if label in self.entities:
             del self.entities[label]
+            self._build_automaton()
             return True
         return False
 

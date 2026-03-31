@@ -32,7 +32,9 @@ dependencies = [
     "ovos-date-parser",
     "ovos-number-parser",
     "stopwordsiso>=0.6.1",
+    "ahocorasick-ner>=0.1.1",
     "setuptools>=82.0.1",
+    "ahocorasick-ner>=0.1.1",
 ]
 
 [project.optional-dependencies]

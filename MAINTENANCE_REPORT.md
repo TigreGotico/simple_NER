@@ -230,3 +230,34 @@ The 3 previously skipped `TestTemporalNER` tests now pass — `ovos-date-parser`
 ```
 206 passed
 ```
+
+---
+
+## 2026-03-31 — TemporalNER false-positive filter, LookUpNER Aho-Corasick, NumberNER numeric guard
+
+**AI Model**: claude-sonnet-4-6
+**Oversight**: Human-directed; AI executed all changes
+
+### Actions Taken
+
+1. **simple_NER/annotators/temporal_ner.py** — Added `_ORDINAL_RE` and `_load_temporal_keywords(lang)` at module level. Temporal keyword list now loaded from `res/<lang>/temporal_keywords.txt` (falls back to `en-us`). False-positive guard: diff spans that contain no temporal keyword and no ordinal (e.g. "the 500" from currency normalisation) are skipped. Added `import re` and `import pathlib`.
+
+2. **simple_NER/res/en-us/temporal_keywords.txt** — Created (42 English keywords).
+
+3. **simple_NER/res/{de-de,es-es,fr-fr}/temporal_keywords.txt** — Created for German, Spanish, French.
+
+4. **simple_NER/annotators/numbers_ner.py** — Added numeric guard: only yield `written_number` entities where the replacement string is a pure number (digits, `.`, `,`, `±`). Eliminates spurious matches from email addresses and phone numbers that `numbers_to_digits` reformats as a side-effect.
+
+5. **simple_NER/annotators/lookup_ner.py** — Added `ahocorasick-ner` backend:
+   - Optional import of `AhocorasickNER`; graceful regex fallback if absent.
+   - `_build_automaton()` builds automaton after `_load_entities()`, `add_wordlist()`, `remove_wordlist()`.
+   - `annotate()` uses `ac.tag()` (O(N) single-pass) when automaton is available.
+   - Entity data now includes `start`/`end` positions from AC matches.
+
+6. **pyproject.toml** — Added `ahocorasick-ner>=0.1.1` to core dependencies.
+
+### Test results
+
+```
+206 passed
+```
