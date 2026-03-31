@@ -17,6 +17,8 @@ from simple_NER.annotators.base import BaseAnnotator
 from simple_NER.utils import resolve_resource_file
 from simple_NER.utils.log import LOG
 
+from ahocorasick_ner import AhocorasickNER as _AhocorasickNER
+
 
 class LocationNER(BaseAnnotator):
     """Extract location entities from text.
@@ -75,7 +77,11 @@ class LocationNER(BaseAnnotator):
 
         self._countries: list[dict[str, Any]] = []
         self._cities: list[dict[str, Any]] = []
+        # Keyed by "<label>|<canonical_name>" → entity data dict
+        self._meta: dict[str, dict[str, Any]] = {}
+        self._ac: Any = None  # AhocorasickNER or None
         self._load_vocab()
+        self._build_automaton()
 
     @property
     def name(self) -> str:
@@ -108,20 +114,77 @@ class LocationNER(BaseAnnotator):
                 LOG.warning("cities.json not found")
 
     def _process_countries(self) -> None:
-        """Pre-process country data for efficient lookup."""
+        """Normalise country data (latlng → latitude/longitude, hemisphere)."""
         for country in self._countries:
             if "latlng" in country and "latitude" not in country:
                 lat, lon = country.pop("latlng")
                 country["latitude"] = lat
                 country["longitude"] = lon
-
             if "latitude" in country:
-                country["hemisphere"] = (
-                    "south" if country["latitude"] < 0 else "north"
-                )
+                country["hemisphere"] = "south" if country["latitude"] < 0 else "north"
+
+    def _build_automaton(self) -> None:
+        """Build Aho-Corasick automaton from loaded vocabularies.
+
+        Each entry is registered as ``label|canonical_name`` so ``_meta``
+        can recover full entity data from an AC match without a second lookup.
+        Falls back to the legacy word-scan when ``ahocorasick-ner`` is absent.
+        """
+        self._meta.clear()
+
+        def _add(ac: Any, label: str, surface: str, data: dict[str, Any]) -> None:
+            if not surface:
+                return
+            key = f"{label}|{surface}"
+            self._meta[key] = data
+            ac.add_word(label, surface)
+
+        ac = _AhocorasickNER(case_sensitive=not self.lowercase)
+
+        if self._include_countries or self._include_capitals:
+            for country in self._countries:
+                name = country["name"]
+                code = country.get("country_code", "")
+                capital = country.get("capital", "")
+                data = country.copy()
+
+                if self._include_countries:
+                    _add(ac, "Country", name, data)
+                    if code:
+                        _add(ac, "Country_code", code, data)
+                if self._include_capitals and capital:
+                    cap_data = {
+                        "country_name": name,
+                        "country_code": code,
+                        "name": capital,
+                        "hemisphere": country.get("hemisphere", "north"),
+                    }
+                    _add(ac, "Capital City", capital, cap_data)
+
+        if self._include_cities:
+            for city in self._cities:
+                city_name = city["name"]
+                lat = float(city.get("lat", 0))
+                lng = float(city.get("lng", 0))
+                city_data = {
+                    "name": city_name,
+                    "country_code": city.get("country", ""),
+                    "latitude": lat,
+                    "longitude": lng,
+                    "hemisphere": "south" if lat < 0 else "north",
+                }
+                _add(ac, "City", city_name, city_data)
+
+        ac.fit()
+        self._ac = ac
+        total = sum(1 for k in self._meta)
+        LOG.debug(f"LocationNER: Aho-Corasick automaton built with {total} patterns")
 
     def annotate(self, text: str) -> Generator[Entity, None, None]:
         """Extract location entities from text.
+
+        Uses Aho-Corasick for O(N) phrase matching — correctly detects
+        multi-word names like "New York" or "United States".
 
         Args:
             text: Input text to analyze.
@@ -129,110 +192,18 @@ class LocationNER(BaseAnnotator):
         Yields:
             Entity objects for countries, capitals, and cities.
         """
-        if self.lowercase:
-            words = text.lower().split()
-        else:
-            words = text.split()
-
-        # Extract countries and capitals
-        if self._include_countries or self._include_capitals:
-            yield from self._extract_countries(words, text)
-
-        # Extract cities
-        if self._include_cities:
-            yield from self._extract_cities(words, text)
-
-    def _extract_countries(
-        self, words: list[str], text: str
-    ) -> Generator[Entity, None, None]:
-        """Extract country and capital entities.
-
-        Args:
-            words: Tokenized text.
-            text: Original text for source_text.
-
-        Yields:
-            Entity objects for countries and capitals.
-        """
-        for word in words:
-            for country in self._countries:
-                name = country["name"]
-                code = country.get("country_code", "")
-                capital = country.get("capital", "")
-
-                if self.lowercase:
-                    name = name.lower()
-                    code = code.lower() if code else ""
-                    capital = capital.lower() if capital else ""
-
-                if word == name and self._include_countries:
-                    yield Entity(
-                        country["name"],
-                        "Country",
-                        source_text=text,
-                        data=country.copy(),
-                        confidence=self.confidence,
-                    )
-                elif word == code and code and self._include_countries:
-                    yield Entity(
-                        code,
-                        "Country_code",
-                        source_text=text,
-                        data=country.copy(),
-                        confidence=self.confidence,
-                    )
-                elif word == capital and capital and self._include_capitals:
-                    data = {
-                        "country_name": country["name"],
-                        "country_code": country.get("country_code", ""),
-                        "name": capital,
-                        "hemisphere": country.get("hemisphere", "north"),
-                    }
-                    yield Entity(
-                        capital,
-                        "Capital City",
-                        source_text=text,
-                        data=data,
-                        confidence=self.confidence,
-                    )
-
-    def _extract_cities(
-        self, words: list[str], text: str
-    ) -> Generator[Entity, None, None]:
-        """Extract city entities.
-
-        Args:
-            words: Tokenized text.
-            text: Original text for source_text.
-
-        Yields:
-            Entity objects for cities.
-        """
-        for word in words:
-            for city in self._cities:
-                name = city["name"]
-                code = city.get("country", "")
-                lat = float(city.get("lat", 0))
-                lng = float(city.get("lng", 0))
-
-                if self.lowercase:
-                    name = name.lower()
-
-                if word == name:
-                    data = {
-                        "name": city["name"],
-                        "country_code": code,
-                        "latitude": lat,
-                        "longitude": lng,
-                        "hemisphere": "south" if lat < 0 else "north",
-                    }
-                    yield Entity(
-                        city["name"],
-                        "City",
-                        source_text=text,
-                        data=data,
-                        confidence=self.confidence,
-                    )
+        for match in self._ac.tag(text, min_word_len=1):
+            key = f"{match['label']}|{match['word']}"
+            meta = self._meta.get(key)
+            if meta is None:
+                continue
+            yield Entity(
+                match["word"],
+                match["label"],
+                source_text=text,
+                data={**meta, "start": match["start"], "end": match["end"]},
+                confidence=self.confidence,
+            )
 
     @property
     def countries(self) -> list[dict[str, Any]]:

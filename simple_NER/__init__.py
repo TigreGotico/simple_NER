@@ -4,6 +4,8 @@ from typing import Any
 
 from quebra_frases import find_spans
 
+__all__ = ["Entity", "SimpleNER"]
+
 
 def find_all(a_str: str, sub: str) -> Iterator[int]:
     """Yield all start positions of *sub* in *a_str* (non-overlapping)."""

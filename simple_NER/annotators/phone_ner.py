@@ -33,15 +33,19 @@ class PhoneAnnotator(BaseAnnotator):
         ```
     """
 
-    # Comprehensive phone number pattern
+    # Extension suffix pattern (x123, ext 456, ext. 789)
+    _EXT = r'(?:\s*(?:x|ext\.?)\s*\d{1,5})?'
+
     PHONE_PATTERN = re.compile(
         r'(?:'
         r'(?:\+\d{1,3}[-.\s]?)?'  # Optional country code
         r'(?:\(?\d{3}\)?[-.\s]?)'  # Area code
-        r'\d{3}[-.\s]?\d{4}'  # Main number
+        r'\d{3}[-.\s]?\d{4}'       # Main number
+        + _EXT +
         r')'
         r'|'
-        r'(?:\d{3}[-.\s]?\d{4})'  # Simple local number
+        r'(?:\d{3}[-.\s]?\d{4})'   # Simple local number
+        + _EXT,
     )
 
     def __init__(

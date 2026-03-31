@@ -261,3 +261,28 @@ The 3 previously skipped `TestTemporalNER` tests now pass — `ovos-date-parser`
 ```
 206 passed
 ```
+
+---
+
+## 2026-03-31 — LocationNER Aho-Corasick, hard deps, phone extensions, __all__
+
+**AI Model**: claude-sonnet-4-6
+**Oversight**: Human-directed; AI executed all changes
+
+### Actions Taken
+
+1. **simple_NER/annotators/locations_ner.py** — Replaced O(N_words × N_locations) word-loop with Aho-Corasick automaton (`_build_automaton`). Multi-word names like "New York", "Los Angeles", "United States" now detected correctly. Legacy word-scan removed entirely. `ahocorasick-ner` is now a hard dependency (no try/except).
+
+2. **simple_NER/annotators/lookup_ner.py** — Removed try/except import and regex fallback. `ahocorasick-ner` hard dependency. `annotate()` simplified to pure AC path.
+
+3. **simple_NER/annotators/phone_ner.py** — Added `_EXT` suffix pattern `(?:\s*(?:x|ext\.?)\s*\d{1,5})?`. Numbers like `+1-555-867-5309 x123` and `(555) 123-4567 ext. 456` now captured in full.
+
+4. **simple_NER/__init__.py** — Added `__all__ = ["Entity", "SimpleNER"]`.
+
+5. **SUGGESTIONS.md** — Created with 10 tracked improvement proposals (S-001 through S-010).
+
+### Test results
+
+```
+206 passed
+```

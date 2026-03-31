@@ -5,7 +5,6 @@ stored in resource files (.entity files).
 """
 from __future__ import annotations
 
-import re
 from collections.abc import Generator
 from pathlib import Path
 
@@ -14,12 +13,7 @@ from simple_NER.annotators.base import BaseAnnotator
 from simple_NER.utils import resolve_resource_file
 from simple_NER.utils.log import LOG
 
-try:
-    from ahocorasick_ner import AhocorasickNER as _AhocorasickNER
-    _AHOCORASICK_AVAILABLE = True
-except ImportError:
-    _AhocorasickNER = None  # type: ignore[assignment,misc]
-    _AHOCORASICK_AVAILABLE = False
+from ahocorasick_ner import AhocorasickNER as _AhocorasickNER
 
 
 class LookUpNER(BaseAnnotator):
@@ -116,11 +110,8 @@ class LookUpNER(BaseAnnotator):
             LOG.warning(f"No entity files found in {folder}")
 
     def _build_automaton(self) -> None:
-        """Build (or rebuild) the Aho-Corasick automaton from ``self.entities``.
-
-        No-op when ``ahocorasick-ner`` is not installed.
-        """
-        if not _AHOCORASICK_AVAILABLE or not self.entities:
+        """Build (or rebuild) the Aho-Corasick automaton from ``self.entities``."""
+        if not self.entities:
             self._ac = None
             return
         ac = _AhocorasickNER(case_sensitive=self._case_sensitive)
@@ -133,9 +124,7 @@ class LookUpNER(BaseAnnotator):
         LOG.debug(f"LookUpNER: Aho-Corasick automaton built with {sum(len(v) for v in self.entities.values())} patterns")
 
     def annotate(self, text: str) -> Generator[Entity, None, None]:
-        """Extract entities from text using wordlist lookup.
-
-        Uses Aho-Corasick automaton when available; falls back to regex.
+        """Extract entities from text using Aho-Corasick wordlist lookup.
 
         Args:
             text: Input text to analyze.
@@ -143,41 +132,18 @@ class LookUpNER(BaseAnnotator):
         Yields:
             Entity objects for matched wordlist entries.
         """
-        if not self.entities:
+        if not self.entities or self._ac is None:
             return
 
-        if self._ac is not None:
-            for match in self._ac.tag(text, min_word_len=1):
-                yield Entity(
-                    match["word"],
-                    match["label"],
-                    source_text=text,
-                    confidence=self.confidence,
-                    data={"source": "wordlist", "language": self.lang,
-                          "start": match["start"], "end": match["end"]},
-                )
-            return
-
-        # Regex fallback
-        search_text = text if self._case_sensitive else text.lower()
-
-        for label, wordlist in self.entities.items():
-            for word in wordlist:
-                if not word:  # Skip empty strings
-                    continue
-
-                search_word = word if self._case_sensitive else word.lower()
-
-                # Use word boundary matching
-                pattern = r"\b" + re.escape(search_word) + r"\b"
-                if re.search(pattern, search_text):
-                    yield Entity(
-                        word,
-                        label,
-                        source_text=text,
-                        confidence=self.confidence,
-                        data={"source": "wordlist", "language": self.lang},
-                    )
+        for match in self._ac.tag(text, min_word_len=1):
+            yield Entity(
+                match["word"],
+                match["label"],
+                source_text=text,
+                confidence=self.confidence,
+                data={"source": "wordlist", "language": self.lang,
+                      "start": match["start"], "end": match["end"]},
+            )
 
     def add_wordlist(self, label: str, words: list[str]) -> None:
         """Add a custom wordlist at runtime.
