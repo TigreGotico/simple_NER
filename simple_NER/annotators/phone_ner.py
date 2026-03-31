@@ -33,21 +33,6 @@ class PhoneAnnotator(BaseAnnotator):
         ```
     """
 
-    # Extension suffix pattern (x123, ext 456, ext. 789)
-    _EXT = r'(?:\s*(?:x|ext\.?)\s*\d{1,5})?'
-
-    PHONE_PATTERN = re.compile(
-        r'(?:'
-        r'(?:\+\d{1,3}[-.\s]?)?'  # Optional country code
-        r'(?:\(?\d{3}\)?[-.\s]?)'  # Area code
-        r'\d{3}[-.\s]?\d{4}'       # Main number
-        + _EXT +
-        r')'
-        r'|'
-        r'(?:\d{3}[-.\s]?\d{4})'   # Simple local number
-        + _EXT,
-    )
-
     def __init__(
         self,
         confidence: float = 0.85,
@@ -64,6 +49,17 @@ class PhoneAnnotator(BaseAnnotator):
         super().__init__(confidence=confidence)
         self._min_length = min_length
         self._require_country_code = require_country_code
+        patterns = self._load_rx("phone")
+        if patterns:
+            self._pattern = re.compile(
+                "|".join(f"(?:{p.pattern})" for p in patterns), re.IGNORECASE
+            )
+        else:
+            _EXT = r'(?:\s*(?:x|ext\.?)\s*\d{1,5})?'
+            self._pattern = re.compile(
+                r'(?:(?:\+\d{1,3}[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}' + _EXT + r')'
+                r'|(?:\d{3}[-.\s]?\d{4})' + _EXT
+            )
 
     @property
     def name(self) -> str:
@@ -79,7 +75,7 @@ class PhoneAnnotator(BaseAnnotator):
         Yields:
             Entity objects for detected phone numbers.
         """
-        for match in self.PHONE_PATTERN.finditer(text):
+        for match in self._pattern.finditer(text):
             phone = match.group()
 
             # Count digits

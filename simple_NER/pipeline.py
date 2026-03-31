@@ -178,40 +178,84 @@ class NERPipeline:
         for annotator in self._annotators:
             yield from annotator.extract_entities(text)
 
+    @staticmethod
+    def _resolve_span(entity: Entity) -> tuple[int, int] | None:
+        """Resolve the primary (start, end) span for an entity.
+
+        Prefers ``entity.data["start"]`` / ``entity.data["end"]`` when present
+        (set by most regex-based annotators), falling back to ``entity.spans[0]``.
+
+        Args:
+            entity: Entity whose span to resolve.
+
+        Returns:
+            ``(start, end)`` tuple, or ``None`` if no span information exists.
+        """
+        start = entity.data.get("start")
+        end = entity.data.get("end")
+        if start is not None and end is not None:
+            return (int(start), int(end))
+        try:
+            spans = entity.spans
+            if spans:
+                return (spans[0][0], spans[0][1])
+        except Exception:
+            pass
+        return None
+
     def _deduplicate(self, entities: list[Entity], text: str) -> list[Entity]:
-        """Deduplicate entities based on current strategy.
+        """Deduplicate entities using longest-span-wins across all annotators.
+
+        Two entities overlap when their character spans intersect.  The
+        resolution order for ties is:
+
+        1. Longer span wins.
+        2. Higher confidence wins.
+        3. Earlier annotator order (list position) wins.
+
+        Entities with no resolvable span are appended at the end unchanged.
 
         Args:
             entities: List of entities to deduplicate.
-            text: Original text (for span calculation).
+            text: Original text (unused, kept for API compatibility).
 
         Returns:
-            Deduplicated list of entities.
+            Deduplicated list sorted by start position.
         """
         if not entities:
             return []
 
-        # Group entities by span
-        span_groups: dict[tuple[int, int], list[Entity]] = {}
+        # Separate entities with and without span information.
+        spanned: list[tuple[Entity, tuple[int, int]]] = []
+        no_span: list[Entity] = []
+
         for entity in entities:
-            for span in entity.spans:
-                key = (span[0], span[1])
-                if key not in span_groups:
-                    span_groups[key] = []
-                span_groups[key].append(entity)
-
-        # Apply deduplication strategy within each span group
-        result: list[Entity] = []
-        for span_entities in span_groups.values():
-            if len(span_entities) == 1:
-                result.append(span_entities[0])
+            span = self._resolve_span(entity)
+            if span is not None:
+                spanned.append((entity, span))
             else:
-                selected = self._select_entity(span_entities)
-                if selected:
-                    result.append(selected)
+                no_span.append(entity)
 
-        # Sort by start position
-        result.sort(key=lambda e: e.spans[0][0] if e.spans else 0)
+        # Sort: longest span first, then highest confidence, preserving
+        # original (annotator) order for equal-priority entities via stable sort.
+        spanned.sort(
+            key=lambda item: (-(item[1][1] - item[1][0]), -item[0].confidence)
+        )
+
+        accepted: list[tuple[Entity, tuple[int, int]]] = []
+        for entity, span in spanned:
+            s_start, s_end = span
+            overlaps = any(
+                s_start < a_end and a_start < s_end
+                for _, (a_start, a_end) in accepted
+            )
+            if not overlaps:
+                accepted.append((entity, span))
+
+        # Sort accepted entities by start position.
+        accepted.sort(key=lambda item: item[1][0])
+        result = [e for e, _ in accepted]
+        result.extend(no_span)
         return result
 
     def _select_entity(self, entities: list[Entity]) -> Entity | None:
