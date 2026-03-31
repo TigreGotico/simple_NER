@@ -1094,7 +1094,6 @@ wheels = [
 
 [[package]]
 name = "simple-ner"
-version = "0.9.0"
 source = { editable = "." }
 dependencies = [
     { name = "ahocorasick-ner" },

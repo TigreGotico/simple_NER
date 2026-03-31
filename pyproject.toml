@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "simple_NER"
-version = "0.9.0"
+dynamic = ["version"]
 description = "Rule-based Named Entity Recognition"
 license = { text = "MIT" }
 authors = [{ name = "jarbasAI", email = "jarbasai@mailfence.com" }]
@@ -54,6 +54,9 @@ Changelog = "https://github.com/OpenJarbas/simple_NER/blob/main/CHANGELOG.md"
 
 [project.entry-points."opm.transformer.intent"]
 simple-ner-transformer = "simple_NER.opm:SimpleNERIntentTransformer"
+
+[tool.setuptools.dynamic]
+version = {attr = "simple_NER.version.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["simple_NER*"]
