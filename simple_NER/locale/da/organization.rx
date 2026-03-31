@@ -1,0 +1,1 @@
+\b[A-ZÆØÅ][A-Za-zæøå\s\-&']+(?:A/S|ApS|I/S|K/S|P/S|IVS)\b

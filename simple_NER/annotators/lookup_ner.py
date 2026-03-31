@@ -79,7 +79,8 @@ class LookUpNER(BaseAnnotator):
 
         if resource_dir is None:
             # Try to find the res directory
-            res_dir = Path(__file__).parent.parent / "res" / self.lang
+            lang_key = self.lang.lower().split("-")[0]
+            res_dir = Path(__file__).parent.parent / "res" / lang_key
             if res_dir.exists():
                 resource_dir = str(res_dir)
             else:

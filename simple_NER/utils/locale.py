@@ -6,15 +6,16 @@ Supports two file types under ``simple_NER/locale/<lang>/``:
 * ``<name>.intent`` — natural language templates with ``{variable}``
   placeholders that are compiled to named-capture-group regexes.
 
-Both file types fall back to ``en-us`` when a language-specific file
-does not exist.
+Both file types fall back to ``en`` when a language-specific file
+does not exist.  Language tags are normalised to their primary subtag:
+``"de-DE"`` and ``"de-de"`` both resolve to the ``de/`` directory.
 
 Usage::
 
     from simple_NER.utils.locale import load_rx, load_intents, intent_to_regex
 
-    patterns = load_rx("phone", "de-de")   # list[re.Pattern]
-    captures = load_intents("currency", "fr-fr")  # list[re.Pattern]
+    patterns = load_rx("phone", "de-DE")   # list[re.Pattern]  → locale/de/phone.rx
+    captures = load_intents("currency", "fr-FR")  # list[re.Pattern]  → locale/fr/currency.intent
 """
 from __future__ import annotations
 
@@ -27,9 +28,11 @@ _LOCALE_DIR = Path(__file__).parent.parent / "locale"
 def _locale_path(name: str, ext: str, lang: str) -> Path | None:
     """Return the best matching locale file path or None.
 
-    Tries ``<lang>/<name>.<ext>`` then ``en-us/<name>.<ext>``.
+    Normalises *lang* to its primary subtag (``"de-DE"`` → ``"de"``) and
+    tries ``<lang>/<name>.<ext>`` then ``en/<name>.<ext>``.
     """
-    for candidate in (lang, "en-us"):
+    lang = lang.lower().split("-")[0]
+    for candidate in (lang, "en"):
         path = _LOCALE_DIR / candidate / f"{name}.{ext}"
         if path.exists():
             return path

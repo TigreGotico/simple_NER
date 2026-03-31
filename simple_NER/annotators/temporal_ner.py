@@ -62,7 +62,8 @@ def _load_temporal_keywords(lang: str) -> frozenset[str]:
     Returns:
         Frozenset of lowercase keyword strings.
     """
-    for candidate in (lang, "en-us"):
+    lang = lang.lower().split("-")[0]
+    for candidate in (lang, "en"):
         path = _RES_DIR / candidate / "temporal_keywords.txt"
         if path.exists():
             return frozenset(

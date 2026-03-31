@@ -1,0 +1,35 @@
+dzisiaj
+jutro
+wczoraj
+teraz
+rano
+po południu
+wieczorem
+w nocy
+pojutrze
+przedwczoraj
+poniedziałek
+wtorek
+środa
+czwartek
+piątek
+sobota
+niedziela
+sekunda
+minuta
+godzina
+dzień
+tydzień
+miesiąc
+rok
+dekada
+wiek
+wkrótce
+późno
+niedawno
+następny
+poprzedni
+temu
+po
+przed
+podczas

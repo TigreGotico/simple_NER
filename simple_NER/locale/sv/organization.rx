@@ -1,0 +1,1 @@
+\b[A-ZÅÄÖ][A-Za-zåäö\s\-&']+(?:AB|HB|KB|Ek\.för\.|Stiftelse)\b

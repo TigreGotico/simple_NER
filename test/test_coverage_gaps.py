@@ -165,7 +165,7 @@ class TestLocaleLoadRx:
     def test_bad_regex_skipped_good_kept(self):
         from simple_NER.utils.locale import load_rx, _LOCALE_DIR
         # Create a temp .rx file under a fake locale
-        lang = "zz-zz"
+        lang = "zz"
         lang_dir = _LOCALE_DIR / lang
         lang_dir.mkdir(parents=True, exist_ok=True)
         rx_file = lang_dir / "test.rx"
@@ -202,7 +202,7 @@ class TestLocaleLoadWordlist:
 
     def test_existing_file_returns_words(self):
         from simple_NER.utils.locale import load_wordlist
-        result = load_wordlist("date_months", "en-us")
+        result = load_wordlist("date_months", "en")
         assert isinstance(result, list)
         assert len(result) > 0
 
@@ -217,7 +217,7 @@ class TestLocaleLoadIntents:
 
     def test_bad_template_skipped_good_kept(self):
         from simple_NER.utils.locale import load_intents, _LOCALE_DIR
-        lang = "zz-zz"
+        lang = "zz"
         lang_dir = _LOCALE_DIR / lang
         lang_dir.mkdir(parents=True, exist_ok=True)
         intent_file = lang_dir / "test.intent"
@@ -255,7 +255,7 @@ class TestLocaleLoadIntents:
             return original_itr(template, flags)
 
         from simple_NER.utils.locale import _LOCALE_DIR
-        lang = "zz-zz2"
+        lang = "zzz"
         lang_dir = _LOCALE_DIR / lang
         lang_dir.mkdir(parents=True, exist_ok=True)
         intent_file = lang_dir / "test2.intent"
