@@ -168,18 +168,38 @@ class DateAnnotator(BaseAnnotator):
         self,
         confidence: float = 0.9,
         prefer_us_format: bool = True,
+        lang: str = "en-us",
     ) -> None:
         """Initialize DateAnnotator.
 
         Args:
             confidence: Default confidence score.
             prefer_us_format: Interpret MM/DD/YYYY as US format.
+            lang: BCP-47 language tag used to load locale month names.
         """
-        super().__init__(confidence=confidence)
+        super().__init__(confidence=confidence, lang=lang)
         self._prefer_us = prefer_us_format
-        months = self._month_pattern()
+
+        # Build month alternation from locale file when available.
+        # For "en-us" (the default), fall back to the full MONTHS dict so
+        # that existing behaviour — matching all supported languages at once —
+        # is preserved.  For any other lang, load the language-specific file
+        # (falling back to en-us locale if missing), which keeps the regex
+        # compact and avoids cross-language false positives.
+        from simple_NER.utils.locale import load_wordlist
+        if self.lang == "en-us":
+            _month_alt = self._month_pattern()
+        else:
+            month_words = load_wordlist("date_months", self.lang)
+            if not month_words:
+                month_words = load_wordlist("date_months", "en-us")
+            if month_words:
+                _month_alt = "|".join(re.escape(m) for m in sorted(month_words, key=len, reverse=True))
+            else:
+                _month_alt = self._month_pattern()
+
         self._compiled_patterns = [
-            (re.compile(tmpl.format(months=months), re.IGNORECASE), fmt)
+            (re.compile(tmpl.format(months=_month_alt), re.IGNORECASE), fmt)
             for tmpl, fmt in self._DATE_PATTERN_TEMPLATES
         ]
 

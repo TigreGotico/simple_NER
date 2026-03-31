@@ -20,6 +20,32 @@ from simple_NER.utils.log import LOG
 from ahocorasick_ner import AhocorasickNER as _AhocorasickNER
 
 
+def _dedup_overlapping(matches: list[dict]) -> list[dict]:
+    """Keep longest match when spans overlap; sort by start position.
+
+    Args:
+        matches: List of match dicts with ``start`` and ``end`` keys.
+
+    Returns:
+        Deduplicated list sorted by start position, longest span wins.
+    """
+    if not matches:
+        return matches
+    # sort by start, then by length descending
+    sorted_m = sorted(matches, key=lambda m: (m["start"], -(m["end"] - m["start"])))
+    result: list[dict] = []
+    last_end = -1
+    for m in sorted_m:
+        if m["start"] >= last_end:
+            result.append(m)
+            last_end = m["end"]
+        elif (m["end"] - m["start"]) > (result[-1]["end"] - result[-1]["start"]):
+            # longer match at same start — replace
+            result[-1] = m
+            last_end = m["end"]
+    return result
+
+
 class LocationNER(BaseAnnotator):
     """Extract location entities from text.
 
@@ -55,6 +81,7 @@ class LocationNER(BaseAnnotator):
         include_capitals: bool = True,
         include_cities: bool = True,
         confidence: float = 0.9,
+        label_confidence: dict[str, float] | None = None,
     ) -> None:
         """Initialize location NER.
 
@@ -65,11 +92,15 @@ class LocationNER(BaseAnnotator):
             include_cities: Extract all cities.
             confidence: Default confidence score for entities.
                 Reduced to 0.75 when lowercase=True.
+            label_confidence: Optional per-label confidence overrides.
+                Typical keys: ``"City"``, ``"Country"``, ``"Capital City"``,
+                ``"Country_code"``.  Missing labels fall back to ``confidence``.
         """
         self.lowercase = lowercase
         self._include_countries = include_countries
         self._include_capitals = include_capitals
         self._include_cities = include_cities
+        self._label_confidence: dict[str, float] = label_confidence or {}
 
         # Adjust confidence for case-insensitive matching
         base_confidence = confidence if not lowercase else 0.75
@@ -192,17 +223,20 @@ class LocationNER(BaseAnnotator):
         Yields:
             Entity objects for countries, capitals, and cities.
         """
-        for match in self._ac.tag(text, min_word_len=1):
+        matches = list(self._ac.tag(text, min_word_len=1))
+        matches = _dedup_overlapping(matches)
+        for match in matches:
             key = f"{match['label']}|{match['word']}"
             meta = self._meta.get(key)
             if meta is None:
                 continue
+            conf = self._label_confidence.get(match["label"], self.confidence)
             yield Entity(
                 match["word"],
                 match["label"],
                 source_text=text,
                 data={**meta, "start": match["start"], "end": match["end"]},
-                confidence=self.confidence,
+                confidence=conf,
             )
 
     @property

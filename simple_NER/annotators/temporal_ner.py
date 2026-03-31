@@ -237,6 +237,20 @@ class TemporalNER(BaseAnnotator):
             for _tag, span1, _span2 in diff.dif_tags():
                 value = " ".join(conv.split()[span1[0] : span1[1]])
 
+                # Skip spans that contain no temporal keyword — mirrors the
+                # guard in _extract_datetime_entities to prevent bare numbers
+                # (e.g. "$500" normalised to "500") matching as durations.
+                # Substring check (not exact-word) handles plural forms:
+                # "minutes" contains keyword "minute", "hours" contains "hour".
+                value_lower = value.lower()
+                has_temporal = any(
+                    kw in word
+                    for word in value_lower.split()
+                    for kw in self._temporal_kw
+                )
+                if not has_temporal:
+                    continue
+
                 # Re-extract to get accurate duration for this specific value
                 delta_result, _ = extract_duration(value, self.lang)
                 if delta_result:

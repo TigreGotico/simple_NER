@@ -6,7 +6,11 @@ Evidence-based issues with `file.py:LINE` citations.
 
 ## Open Issues
 
-*No open issues.*
+### TECH-011 — `NumberNER`: entities missing `start`/`end` span positions
+- **Severity**: Medium
+- **File**: `simple_NER/annotators/numbers_ner.py`
+- **Detail**: `written_number` entities yielded by `NumberNER.annotate()` set `start=0, end=0` (or omit span entirely). Unlike `LookUpNER` and `LocationNER` which use Aho-Corasick and return accurate byte offsets, `NumberNER` uses `numbers_to_digits()` string diffing which does not preserve original span positions. Callers relying on `entity.data["start"]` / `entity.data["end"]` for downstream highlighting or slot-filling will receive incorrect values.
+- **Workaround**: Re-scan the original text for the matched number string after extraction.
 
 ---
 

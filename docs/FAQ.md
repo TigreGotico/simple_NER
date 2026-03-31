@@ -173,6 +173,22 @@ entities = await pipeline.process_async(text)
 entities = asyncio.run(pipeline.process_async(text))
 ```
 
+### Q: How do I add phone number patterns for a new language?
+
+**A:** Create `locale/<lang>/phone.rx` (one regex per line). `PhoneAnnotator` calls `BaseAnnotator._load_rx("phone", lang)` at init time and merges those patterns into its compiled set alongside the built-in `en-us` patterns.
+
+### Q: How do I add currency phrases for a new language?
+
+**A:** Create `locale/<lang>/currency.intent` with one simplematch template per line (e.g. `{amount} euros`). `CurrencyAnnotator` loads these via `BaseAnnotator._load_intents("currency", lang)` and converts them to regex via `intent_to_regex()`.
+
+### Q: Does the pipeline handle overlapping entity spans?
+
+**A:** Yes, since v0.9.0. `NERPipeline._deduplicate` applies a longest-span-wins strategy across all annotator types. When two entities overlap (e.g. `$500` matched as both `money` and `written_number`), only the entity with the larger span is kept. Exact-span duplicates with different labels are also de-duplicated.
+
+### Q: Can I set different confidence per entity type in `LookUpNER`?
+
+**A:** Yes. Pass `label_confidence={"City": 0.7, "Country": 0.95}` at construction time. Labels not listed fall back to the global `confidence` parameter. Same interface applies to `LocationNER`.
+
 ---
 
 ## Known Limitations

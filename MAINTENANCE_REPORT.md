@@ -264,6 +264,49 @@ The 3 previously skipped `TestTemporalNER` tests now pass — `ovos-date-parser`
 
 ---
 
+## 2026-03-31 — Locale system, coverage boost, all SUGGESTIONS fixes
+
+**AI Model**: claude-sonnet-4-6
+**Oversight**: Tests pass; human review pending
+
+### Actions Taken
+
+1. **simple_NER/utils/locale.py** — New locale loader module: `load_rx()`, `load_intents()`, `load_wordlist()`, `intent_to_regex()`. Resolves locale files under `locale/<lang>/` with `en-us` fallback.
+
+2. **locale/en-us/** — 7 `.rx` files, 1 `.intent` file, `date_months.txt`.
+
+3. **locale/de-de/** — `organization.rx`, `currency.rx`, `currency.intent`.
+
+4. **locale/{es-es,fr-fr,de-de,pt-pt,it-it,nl-nl}/date_months.txt** — Month-name wordlists for 6 locales.
+
+5. **BaseAnnotator** — Added `_load_rx()` and `_load_intents()` helper methods; `lang` param already in place.
+
+6. **PhoneAnnotator** (`phone_ner.py`) — Wired to locale; S-003 space-separated international formats (`+44 20 7946 0958`) fixed via `locale/en-us/phone.rx`.
+
+7. **CurrencyAnnotator** (`currency_ner.py`) — S-010 EU decimal notation (`1.000,50`); added `_normalize_amount()`; intent patterns loaded from locale.
+
+8. **OrganizationAnnotator** (`organization_ner.py`) — Wired to locale via `locale/<lang>/organization.rx`.
+
+9. **DateAnnotator** (`date_ner.py`) — Month names loaded from locale `date_months.txt` files.
+
+10. **LocationNER** (`locations_ner.py`) — S-002 longest-match-wins dedup; S-005 per-label `label_confidence` param.
+
+11. **LookUpNER** (`lookup_ner.py`) — S-005 per-label `label_confidence` param.
+
+12. **TemporalNER** (`temporal_ner.py`) — S-004 temporal-keyword guard applied to duration extraction.
+
+13. **pipeline.py** — S-006 cross-annotator span-overlap dedup (longest-span-wins) in `_deduplicate`.
+
+14. **135 new tests** — 206 → 341 total; `numbers_ner` 28% → 84%, `lookup_ner` 72% → 91%, `organization_ner` 76% → 84%.
+
+### Test results
+
+```
+341 passed
+```
+
+---
+
 ## 2026-03-31 — LocationNER Aho-Corasick, hard deps, phone extensions, __all__
 
 **AI Model**: claude-sonnet-4-6

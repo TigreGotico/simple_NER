@@ -2,6 +2,7 @@
 
 This module defines the core interfaces that all annotators should implement.
 """
+import re
 from abc import ABC, abstractmethod
 from collections.abc import Generator
 
@@ -96,6 +97,32 @@ class BaseAnnotator(Annotator):
     def confidence(self) -> float:
         """Return default confidence score."""
         return self._confidence
+
+    def _load_rx(self, name: str, flags: re.RegexFlag = re.IGNORECASE) -> list:
+        """Load compiled regex patterns from locale/<lang>/<name>.rx.
+
+        Args:
+            name: File stem (e.g. ``"phone"``).
+            flags: Regex flags applied to every pattern.
+
+        Returns:
+            List of compiled patterns; empty list if no file found.
+        """
+        from simple_NER.utils.locale import load_rx
+        return load_rx(name, self.lang, flags)
+
+    def _load_intents(self, name: str, flags: re.RegexFlag = re.IGNORECASE) -> list:
+        """Load compiled intent patterns from locale/<lang>/<name>.intent.
+
+        Args:
+            name: File stem (e.g. ``"currency"``).
+            flags: Regex flags applied to every pattern.
+
+        Returns:
+            List of compiled patterns with named capture groups.
+        """
+        from simple_NER.utils.locale import load_intents
+        return load_intents(name, self.lang, flags)
 
     @abstractmethod
     def annotate(self, text: str) -> Generator[Entity, None, None]:

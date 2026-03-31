@@ -84,8 +84,19 @@ class CurrencyAnnotator(BaseAnnotator):
         'krone': 'DKK', 'kroner': 'DKK',
     }
 
-    # Amount pattern fragment
-    _AMT = r'(?:\d{1,3}(?:[,\s]\d{3})*|\d+)(?:[.,]\d{1,2})?'
+    # Amount pattern fragment — US (1,000.50), EU (1.000,50), or plain integer
+    # Amount pattern fragment.
+    # EU branch uses + (requires at least one dot-group) so it does not shadow
+    # plain decimals; similarly US branch requires at least one comma-group.
+    # Plain fallback handles bare integers and simple decimals (1.5, 1,5).
+    _AMT = (
+        r'(?:'
+        r'\d{1,3}(?:\.\d{3})+(?:,\d+)?'   # EU: 1.000,50 (dot-thousands + comma-dec)
+        r'|'
+        r'\d{1,3}(?:,\d{3})+(?:\.\d+)?'   # US: 1,000.50 (comma-thousands + dot-dec)
+        r'|\d+(?:[.,]\d+)?'                # plain: 50, 1.5, 1,5
+        r')'
+    )
 
     # Currency symbols split by length to avoid character-class bugs.
     # Multi-char symbols (R$, A$, C$) MUST use alternation, not [...].
@@ -105,10 +116,11 @@ class CurrencyAnnotator(BaseAnnotator):
         iso_codes = '|'.join(cls.CURRENCY_SYMBOLS.values())
         written = '|'.join(sorted(cls.WRITTEN_WORDS.keys(), key=len, reverse=True))
         return re.compile(
-            rf'(?:(?:{sym_alt})\s*{amt})'           # Symbol then amount
-            rf'|(?:{amt}\s*(?:{iso_codes}))'         # Amount then ISO code
-            rf'|(?:(?:{iso_codes})\s+{amt})'         # ISO code then amount
-            rf'|(?:\b{amt}\s+(?:{written})\b)',      # Amount then written word
+            rf'(?:(?:{sym_alt})\s*{amt})'            # Symbol then amount: €1.000,50
+            rf'|(?:{amt}\s*(?:{sym_alt}))'            # Amount then symbol: 1.000,50 €
+            rf'|(?:{amt}\s*(?:{iso_codes}))'          # Amount then ISO code: 1.000,50 EUR
+            rf'|(?:(?:{iso_codes})\s+{amt})'          # ISO code then amount: EUR 1.000,50
+            rf'|(?:\b{amt}\s+(?:{written})\b)',       # Amount then written word: 50 euros
             re.IGNORECASE,
         )
 
@@ -121,6 +133,7 @@ class CurrencyAnnotator(BaseAnnotator):
             confidence: Default confidence score.
         """
         super().__init__(confidence=confidence)
+        self._intent_patterns = self._load_intents("currency")
 
     @property
     def name(self) -> str:
@@ -136,11 +149,14 @@ class CurrencyAnnotator(BaseAnnotator):
         Yields:
             Entity objects for detected monetary values.
         """
+        seen_spans: list[tuple[int, int]] = []
+
         for match in self.CURRENCY_PATTERN.finditer(text):
             money = match.group()
             currency, amount = self._parse_currency(money)
 
             if currency and amount:
+                seen_spans.append((match.start(), match.end()))
                 yield Entity(
                     value=money,
                     entity_type="money",
@@ -155,6 +171,51 @@ class CurrencyAnnotator(BaseAnnotator):
                     }
                 )
 
+        for pat in self._intent_patterns:
+            for m in pat.finditer(text):
+                # Skip if this span overlaps with an already-yielded entity
+                if any(m.start() < e and s < m.end() for s, e in seen_spans):
+                    continue
+                seen_spans.append((m.start(), m.end()))
+                amount = m.group("amount") if "amount" in pat.groupindex else m.group()
+                yield Entity(
+                    m.group(),
+                    "currency",
+                    source_text=text,
+                    confidence=self.confidence,
+                    data={
+                        "amount": amount,
+                        "currency_type": "written",
+                        "start": m.start(),
+                        "end": m.end(),
+                    }
+                )
+
+    @staticmethod
+    def _normalize_amount(raw: str) -> float | None:
+        """Normalize a raw amount string to float, handling US and EU formats.
+
+        Args:
+            raw: Raw amount string, e.g. "1,000.50" (US) or "1.000,50" (EU).
+
+        Returns:
+            Normalized float, or None on parse failure.
+        """
+        raw = raw.strip()
+        # EU format: dot thousands groups then comma decimal, e.g. "1.000,50"
+        if re.search(r'\d\.\d{3}', raw) and ',' in raw:
+            raw = raw.replace('.', '').replace(',', '.')
+        elif ',' in raw and '.' not in raw:
+            # Bare comma decimal, e.g. "1,50"
+            raw = raw.replace(',', '.')
+        else:
+            # US format: remove comma thousands separator
+            raw = raw.replace(',', '')
+        try:
+            return float(raw)
+        except ValueError:
+            return None
+
     def _parse_currency(self, text: str) -> tuple[str | None, float | None]:
         """Parse currency string into currency code and amount.
 
@@ -167,11 +228,13 @@ class CurrencyAnnotator(BaseAnnotator):
         # Clean and normalize
         text = text.strip()
 
-        # Extract amount (remove non-numeric except decimal)
-        amount_str = re.sub(r'[^\d.]', '', text)
-        try:
-            amount = float(amount_str)
-        except ValueError:
+        # Extract raw amount string (digits, commas, dots, spaces)
+        amount_match = re.search(r'[\d][0-9,.\s]*', text)
+        if amount_match:
+            amount = self._normalize_amount(amount_match.group())
+        else:
+            amount = None
+        if amount is None:
             return None, None
 
         # Detect currency

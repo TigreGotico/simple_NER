@@ -11,45 +11,46 @@ Agent proposals for future improvements. Evidence-based; all items include a rat
 - **Alternative**: Use `LookUpNER` with a first-name/last-name wordlist (e.g. from `names-dataset`) as a complement to the regex pass.
 - **File**: `simple_NER/annotators/names_ner.py`
 
-### S-002 — `cities.json` deduplication / disambiguation
-- **Rationale**: "York" (England) shadows "New York" because both appear in the city list and Aho-Corasick finds the shorter match first. Sorting patterns longest-first at automaton build time, or filtering single-word cities below a population threshold, would reduce noise.
-- **File**: `simple_NER/annotators/locations_ner.py:_build_automaton`
+### [DONE] S-002 — `cities.json` deduplication / disambiguation
+- **Status**: Completed 2026-03-31 — longest-match-wins dedup added to `LocationNER`; shorter substrings suppressed when longer match covers the same span.
+- **File**: `simple_NER/annotators/locations_ner.py`
 
-### S-003 — `PhoneAnnotator`: improve international format coverage
-- **Rationale**: Space-separated international formats (`+44 20 7946 0958`, `+33 1 23 45 67 89`) partially match only the trailing digits. The pattern needs a separate branch for `\+\d{1,3}(?:[\s-]\d{2,4}){2,4}`.
+### [DONE] S-003 — `PhoneAnnotator`: improve international format coverage
+- **Status**: Completed 2026-03-31 — locale/en-us/phone.rx wired to `PhoneAnnotator`; space-separated international formats (`+44 20 7946 0958`) now matched via locale patterns.
 - **File**: `simple_NER/annotators/phone_ner.py`
 
 ---
 
 ## Medium Priority
 
-### S-004 — `TemporalNER`: use `_temporal_kw` for duration guard too
-- **Rationale**: The keyword guard is only applied to datetime spans; duration spans could also produce false positives from bare numbers (e.g. "$500" → "500 seconds").
-- **File**: `simple_NER/annotators/temporal_ner.py:_extract_duration_entities`
+### [DONE] S-004 — `TemporalNER`: use `_temporal_kw` for duration guard too
+- **Status**: Completed 2026-03-31 — temporal-keyword guard now applied to duration extraction in `_extract_duration_entities`.
+- **File**: `simple_NER/annotators/temporal_ner.py`
 
-### S-005 — `LookUpNER` / `LocationNER`: per-label confidence scores
-- **Rationale**: Country matches are high-confidence; city single-word matches are lower. Let callers configure `{"City": 0.7, "Country": 0.95}` at init time.
+### [DONE] S-005 — `LookUpNER` / `LocationNER`: per-label confidence scores
+- **Status**: Completed 2026-03-31 — `label_confidence: dict` param added to both `LookUpNER` and `LocationNER`; per-label overrides applied at annotation time.
 - **Files**: `lookup_ner.py`, `locations_ner.py`
 
-### S-006 — `NERPipeline`: expose span-overlap dedup across annotator types
-- **Rationale**: Money and written_number often overlap on the same span (e.g. `$500`). The dedup only groups exact-span duplicates; overlapping spans from different annotators are both yielded. A longest-span wins strategy across types would clean this up.
-- **File**: `simple_NER/pipeline.py:_deduplicate`
+### [DONE] S-006 — `NERPipeline`: expose span-overlap dedup across annotator types
+- **Status**: Completed 2026-03-31 — cross-annotator span-overlap dedup (longest-span-wins) added to `NERPipeline._deduplicate`.
+- **File**: `simple_NER/pipeline.py`
 
-### S-007 — `opm.py`: accept list of entity types to inject per utterance context
-- **Rationale**: Some OVOS skills only want `date_time` or `number`; running the full pipeline for every utterance is wasteful. Expose a `per_skill_annotators` config key.
+### [DONE] S-007 — `opm.py`: accept list of entity types to inject per utterance context
+- **Status**: Completed 2026-03-31 — `per_skill_annotators` config key exposed in `SimpleNERIntentTransformer`; pipeline filtered per skill at transform time.
 - **File**: `simple_NER/opm.py`
 
 ---
 
 ## Low Priority
 
-### S-008 — Add Italian and Portuguese `temporal_keywords.txt`
-- **Rationale**: `DateAnnotator` already supports IT/PT month names; `TemporalNER` should too.
+### [DONE] S-008 — Add Italian and Portuguese `temporal_keywords.txt`
+- **Status**: Completed 2026-03-31 — `locale/it-it/` and `locale/pt-pt/` date_months.txt added; TemporalNER locale-aware for IT/PT.
 - **File**: `simple_NER/res/it-it/`, `simple_NER/res/pt-pt/`
 
-### S-009 — `EmailAnnotator`: add local-part length validation (RFC 5321 max 64 chars)
+### [DONE] S-009 — `EmailAnnotator`: add local-part length validation (RFC 5321 max 64 chars)
+- **Status**: Completed 2026-03-31 — RFC 5321 local-part ≤64 char validation added to `EmailAnnotator.annotate`.
 - **File**: `simple_NER/annotators/email_ner.py`
 
-### S-010 — `CurrencyAnnotator`: extend `_AMT` to handle European decimal notation (`1.000,50`)
-- **Rationale**: The current pattern treats `.` as decimal separator only. In DE/ES/FR/IT the comma is the decimal separator and dot is the thousands separator.
+### [DONE] S-010 — `CurrencyAnnotator`: extend `_AMT` to handle European decimal notation (`1.000,50`)
+- **Status**: Completed 2026-03-31 — `_AMT` pattern extended and `_normalize_amount()` added; `1.000,50 €` now parses correctly as 1000.50.
 - **File**: `simple_NER/annotators/currency_ner.py`

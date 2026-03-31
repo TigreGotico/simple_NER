@@ -77,16 +77,23 @@ class OrganizationAnnotator(BaseAnnotator):
         """
         super().__init__(confidence=confidence)
         self._strict_mode = strict_mode
-        
-        # In strict mode, use fewer patterns for higher precision
-        if strict_mode:
-            self._compiled_patterns = [
-                re.compile(p) for p in self.ORG_PATTERNS[:2]  # Only company + educational
-            ]
+
+        # Try loading patterns from locale; fall back to class-level ORG_PATTERNS
+        locale_patterns = self._load_rx("organization")
+        if locale_patterns:
+            if strict_mode:
+                self._compiled_patterns = locale_patterns[:2]
+            else:
+                self._compiled_patterns = locale_patterns
         else:
-            self._compiled_patterns = [
-                re.compile(p) for p in self.ORG_PATTERNS
-            ]
+            if strict_mode:
+                self._compiled_patterns = [
+                    re.compile(p) for p in self.ORG_PATTERNS[:2]
+                ]
+            else:
+                self._compiled_patterns = [
+                    re.compile(p) for p in self.ORG_PATTERNS
+                ]
 
     @property
     def name(self) -> str:

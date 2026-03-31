@@ -48,6 +48,7 @@ class LookUpNER(BaseAnnotator):
         lang: str = "en-us",
         case_sensitive: bool = False,
         confidence: float = 1.0,
+        label_confidence: dict[str, float] | None = None,
     ) -> None:
         """Initialize LookUpNER.
 
@@ -55,9 +56,13 @@ class LookUpNER(BaseAnnotator):
             lang: Language code for resource files.
             case_sensitive: Whether matching is case-sensitive.
             confidence: Default confidence score for entities.
+            label_confidence: Optional per-label confidence overrides.
+                Keys are label names; values override the flat ``confidence``
+                for that label.  Missing labels fall back to ``confidence``.
         """
         super().__init__(confidence=confidence, lang=lang)
         self._case_sensitive = case_sensitive
+        self._label_confidence: dict[str, float] = label_confidence or {}
         self.entities: dict[str, list[str]] = {}
         self._ac: "_AhocorasickNER | None" = None
         self._load_entities()
@@ -136,11 +141,12 @@ class LookUpNER(BaseAnnotator):
             return
 
         for match in self._ac.tag(text, min_word_len=1):
+            conf = self._label_confidence.get(match["label"], self.confidence)
             yield Entity(
                 match["word"],
                 match["label"],
                 source_text=text,
-                confidence=self.confidence,
+                confidence=conf,
                 data={"source": "wordlist", "language": self.lang,
                       "start": match["start"], "end": match["end"]},
             )
