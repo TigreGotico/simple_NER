@@ -297,6 +297,99 @@ class TestLiveExtraction(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
+# _find_replacements helper (pure-Python, no parser needed)
+# ---------------------------------------------------------------------------
+
+class TestFindReplacements(unittest.TestCase):
+    """Unit tests for the _find_replacements character-diff helper."""
+
+    def _fn(self, original: str, converted: str):
+        from simple_NER.annotators.numbers_ner import _find_replacements
+        return _find_replacements(original, converted)
+
+    def test_simple_replacement(self):
+        original = "three cats"
+        converted = "3 cats"
+        results = self._fn(original, converted)
+        self.assertEqual(len(results), 1)
+        start, end, new_val = results[0]
+        self.assertEqual(original[start:end], "three")
+        self.assertEqual(new_val, "3")
+
+    def test_no_change(self):
+        results = self._fn("hello world", "hello world")
+        self.assertEqual(results, [])
+
+    def test_compound_number(self):
+        original = "three hundred cats"
+        converted = "300 cats"
+        results = self._fn(original, converted)
+        self.assertEqual(len(results), 1)
+        start, end, new_val = results[0]
+        self.assertEqual(original[start:end], "three hundred")
+        self.assertEqual(new_val, "300")
+
+    def test_multiple_numbers(self):
+        original = "two cats and five dogs"
+        converted = "2 cats and 5 dogs"
+        results = self._fn(original, converted)
+        new_vals = [nv for _, _, nv in results]
+        self.assertIn("2", new_vals)
+        self.assertIn("5", new_vals)
+        for start, end, nv in results:
+            self.assertEqual(original[start:end], {"2": "two", "5": "five"}[nv])
+
+
+# ---------------------------------------------------------------------------
+# start/end offsets in entity data (live tests)
+# ---------------------------------------------------------------------------
+
+@unittest.skipUnless(_OVOS_AVAILABLE, "ovos-number-parser not installed")
+class TestStartEndOffsets(unittest.TestCase):
+    """Verify entity.data["start"] and entity.data["end"] character offsets."""
+
+    def test_start_end_present(self):
+        results = _entities("three cats")
+        self.assertGreaterEqual(len(results), 1)
+        e = results[0]
+        self.assertIn("start", e.data)
+        self.assertIn("end", e.data)
+
+    def test_span_matches_original_word(self):
+        text = "I have three cats"
+        results = _entities(text)
+        self.assertGreaterEqual(len(results), 1)
+        e = results[0]
+        span = text[e.data["start"]:e.data["end"]]
+        self.assertEqual(span, e.value)
+
+    def test_compound_number_span(self):
+        text = "three hundred apples"
+        results = _entities(text)
+        self.assertGreaterEqual(len(results), 1)
+        e = results[0]
+        span = text[e.data["start"]:e.data["end"]]
+        self.assertEqual(span, e.value)
+        self.assertIn("three hundred", span)
+
+    def test_mid_sentence_offset(self):
+        text = "I see twenty birds flying"
+        results = _entities(text)
+        self.assertGreaterEqual(len(results), 1)
+        e = results[0]
+        span = text[e.data["start"]:e.data["end"]]
+        self.assertEqual(span, e.value)
+        self.assertGreater(e.data["start"], 0)
+
+    def test_multiple_numbers_offsets_distinct(self):
+        text = "two cats and five dogs"
+        results = _entities(text)
+        if len(results) >= 2:
+            starts = [e.data["start"] for e in results]
+            self.assertEqual(len(starts), len(set(starts)), "Offsets should be distinct")
+
+
+# ---------------------------------------------------------------------------
 # __main__ block smoke-test (no crash, no output checked)
 # ---------------------------------------------------------------------------
 

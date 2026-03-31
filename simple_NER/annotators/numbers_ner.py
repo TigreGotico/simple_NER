@@ -7,11 +7,11 @@ Requires: ovos-number-parser
 """
 from __future__ import annotations
 
+import difflib
 from collections.abc import Generator
 
 from simple_NER import Entity
 from simple_NER.annotators.base import BaseAnnotator
-from simple_NER.utils.diff import TextDiff
 from simple_NER.utils.log import LOG
 
 try:
@@ -27,6 +27,27 @@ except ImportError:
         "Install with: pip install ovos-number-parser"
     )
     _convert_numbers = None  # type: ignore[assignment]
+
+
+def _find_replacements(original: str, converted: str) -> list[tuple[int, int, str]]:
+    """Return character-level replacements between *original* and *converted*.
+
+    Args:
+        original: The source text before number conversion.
+        converted: The text after ``numbers_to_digits()`` has been applied.
+
+    Returns:
+        List of ``(orig_start, orig_end, new_value)`` tuples for each changed
+        block, where ``original[orig_start:orig_end]`` is the source span and
+        ``new_value`` is the replacement string.
+    """
+    matcher = difflib.SequenceMatcher(None, original, converted, autojunk=False)
+    results: list[tuple[int, int, str]] = []
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag in ("replace", "delete", "insert"):
+            new_val = converted[j1:j2]
+            results.append((i1, i2, new_val))
+    return results
 
 
 class NumberNER(BaseAnnotator):
@@ -127,21 +148,25 @@ class NumberNER(BaseAnnotator):
                     lang=self.lang,
                 )
 
-            # Find differences to locate written numbers.
-            # Only yield if the replacement is numeric — the new
-            # numbers_to_digits() API also normalises punctuation which
-            # produces spurious diffs for emails, phone numbers, etc.
-            diff = TextDiff(text, replaced)
-            for _tag, span1, span2 in diff.dif_tags():
-                value = " ".join(text.split()[span1[0] : span1[1]])
-                numeric = " ".join(replaced.split()[span2[0] : span2[1]])
+            # No change — nothing to extract.
+            if replaced == text:
+                return
 
-                # Skip diffs where the replacement isn't a pure number
+            # Find character-level replacements.  Only yield when the
+            # replacement is purely numeric — numbers_to_digits() also
+            # normalises punctuation which produces spurious diffs for
+            # emails, phone-numbers, etc.
+            for start, end, numeric in _find_replacements(text, replaced):
                 stripped = numeric.replace(".", "").replace(",", "").replace("-", "")
                 if not stripped.lstrip("+-").isdigit():
                     continue
 
-                data = {"number": numeric}
+                value = text[start:end]
+                data = {
+                    "number": numeric,
+                    "start": start,
+                    "end": end,
+                }
                 yield Entity(
                     value,
                     "written_number",
