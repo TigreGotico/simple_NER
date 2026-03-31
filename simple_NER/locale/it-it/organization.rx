@@ -1,0 +1,2 @@
+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+)*\s+(?:S\.p\.A\.|S\.r\.l\.|S\.n\.c\.|S\.a\.s\.|S\.s\.|S\.r\.l\.s\.|S\.c\.a\.r\.l\.)\b
+Università\s+(?:degli?\s+Studi\s+)?(?:di\s+)?[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\s]+

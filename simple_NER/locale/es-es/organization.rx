@@ -1,0 +1,2 @@
+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+)*\s+(?:S\.A\.|S\.L\.|S\.L\.U\.|S\.A\.U\.|S\.C\.|S\.Coop\.|S\.L\.P\.)\b
+Universidad\s+(?:de\s+)?[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\s]+

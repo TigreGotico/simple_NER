@@ -1,0 +1,43 @@
+hoje
+amanhã
+ontem
+agora
+logo
+esta manhã
+esta tarde
+esta noite
+depois de amanhã
+segunda-feira
+terça-feira
+quarta-feira
+quinta-feira
+sexta-feira
+sábado
+domingo
+janeiro
+fevereiro
+março
+abril
+maio
+junho
+julho
+agosto
+setembro
+outubro
+novembro
+dezembro
+próximo
+último
+seguinte
+manhã
+tarde
+noite
+meia-noite
+meio-dia
+semana
+mês
+ano
+dia
+hora
+minuto
+segundo
