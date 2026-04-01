@@ -152,6 +152,17 @@ class LookUpNER(BaseAnnotator):
                       "start": match["start"], "end": match["end"]},
             )
 
+    def add_word(self, label: str, word: str) -> None:
+        """Add a single word to an entity type at runtime.
+
+        Args:
+            label: Entity type label for the word.
+            word: Word or phrase to match.
+        """
+        self.entities.setdefault(label, []).append(word)
+        self._build_automaton()
+        LOG.debug(f"Added word '{word}' to label '{label}'")
+
     def add_wordlist(self, label: str, words: list[str]) -> None:
         """Add a custom wordlist at runtime.
 

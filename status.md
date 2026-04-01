@@ -5,7 +5,7 @@
 - [x] Rename `_AhocorasickNER` import in `lookup_ner.py`; update all usages including string type annotation on line 67
 - [x] Rename `_AhocorasickNER` import in `locations_ner.py`; update usage in `_build_automaton`
 - [x] Add `min_word_len: int = 5` (keyword-only) to `AhocorasickAnnotatorWrapper.__init__`; store and forward to `tag()`
-- [ ] Add `LookUpNER.add_word(label, word)` method with automaton rebuild
+- [x] Add `LookUpNER.add_word(label, word)` method with automaton rebuild
 - [ ] Update `AhocorasickAnnotatorWrapper` docstring with `min_word_len` param doc and dataset-loader example
 - [ ] Update `docs/index.md` `AhocorasickAnnotatorWrapper` section
 - [ ] Add tests: `min_word_len` forwarding (custom + default), `LookUpNER.add_word`, no-`_AhocorasickNER`-symbol check
