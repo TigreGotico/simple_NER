@@ -142,10 +142,21 @@ class: `SimpleNERIntentTransformer`.
 The transformer runs the configured pipeline on every utterance and injects recognized entities
 into `match_data` before intent handling proceeds.
 
-## Links
+## Documentation
 
-- [docs/index.md](docs/index.md) — full API reference and architecture
-- [docs/TUTORIALS.md](docs/TUTORIALS.md) — step-by-step tutorials
-- [docs/API.md](docs/API.md) — detailed class and method docs
-- [examples/README.md](examples/README.md) — runnable example index
-- [GitHub](https://github.com/OpenJarbas/simple_NER)
+**New to simple_NER?** Start here:
+- [**Getting Started**](docs/GETTING_STARTED.md) — installation, first pipeline, common patterns
+- [**FAQ & Troubleshooting**](docs/FAQ.md) — answers to common questions
+
+**Need details?**
+- [API Reference](docs/API.md) — class and method documentation
+- [Complete Architecture](docs/index.md) — design, all annotators, advanced topics
+- [Tutorials](docs/TUTORIALS.md) — step-by-step guides for specific use cases
+
+**Learn by example:**
+- [examples/README.md](examples/README.md) — 15+ runnable scripts (quick start, all annotators, async, custom types, OVOS plugin, etc.)
+
+**Project info:**
+- [GitHub](https://github.com/OpenJarbas/simple_NER) — source code, issues, discussions
+- [CHANGELOG.md](CHANGELOG.md) — version history
+- [AUDIT.md](AUDIT.md) — known issues and technical debt

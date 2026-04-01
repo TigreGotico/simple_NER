@@ -22,7 +22,7 @@ Evidence-based issues with `file.py:LINE` citations.
 |----|-------|-------|
 | TECH-001 | `keywords/rake.py` 26-byte stub | 2026-03-30 — deleted |
 | TECH-003 | NeuralNER / padatious removed | 2026-03-30 — deleted |
-| TECH-004 | `utils/diff.py` untyped | 2026-03-30 |
+| TECH-004 | `utils/diff.py` untyped | 2026-04-01 — `Tuple` replaced with built-in `tuple`, unused `typing.Tuple` import removed |
 | TECH-006 | `opm.py` hallucinated OVOS API | 2026-03-30 — rewritten |
 | TECH-007 | NeuralNER stale reference | 2026-03-30 — moot (file deleted) |
 | setup.py | Stale setup.py with wrong deps | 2026-03-30 — deleted |
@@ -31,3 +31,7 @@ Evidence-based issues with `file.py:LINE` citations.
 | TECH-009 | `CurrencyAnnotator` char-class bug (R$/A$/C$) | 2026-03-31 — fixed with `_build_pattern()` + longest-first symbol sort |
 | TECH-010 | `ovos-number-parser` / `ovos-date-parser` API mismatch | 2026-03-31 — updated to new positional `lang` signatures |
 | TECH-011 | `NumberNER` entities missing `start`/`end` span positions | 2026-03-31 — fixed via `_find_replacements()` using `difflib.SequenceMatcher` (commit a5bac24) |
+| TECH-013 | `LookUpNER.add_word()` O(n²) caveat undocumented | 2026-04-01 — documented in docstring: "For bulk additions prefer :meth:`add_wordlist`" |
+| TECH-014 | `LocationNER._ac` type annotation inconsistent | 2026-04-01 — aligned to `AhocorasickNER \| None` (commit 67a1e02) |
+| TECH-015 | `LookUpNER` stale fallback docstring | 2026-04-01 — removed from class docstring (commit 67a1e02) |
+| TECH-016 | `AhocorasickAnnotatorWrapper` docstring wrong dataset classes | 2026-04-01 — corrected to `ImdbNER`, `MusicNER`, `EncyclopediaMetallvmNER` (commit 67a1e02) |

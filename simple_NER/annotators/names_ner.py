@@ -1,7 +1,8 @@
 """Name entity extraction using regex patterns.
 
 This module provides extraction of proper nouns (names) from text
-using regex patterns.
+using regex patterns with sentence-position heuristics to reduce
+false positives at sentence boundaries.
 """
 from __future__ import annotations
 
@@ -13,6 +14,10 @@ from collections.abc import Generator
 
 from simple_NER import Entity
 from simple_NER.annotators.base import BaseAnnotator
+
+# Sentence-ending punctuation — a capital word immediately after these is
+# likely a sentence start, not a proper noun.
+_SENTENCE_END_RE = re.compile(r"[.!?]\s*$")
 
 
 def _load_stopwords_iso(lang: str = "en") -> frozenset[str]:
@@ -103,8 +108,33 @@ class NamesNER(BaseAnnotator):
         """Return annotator name."""
         return "names"
 
+    @staticmethod
+    def _at_sentence_start(text: str, match_start: int) -> bool:
+        """Return True if the match position is at a sentence boundary.
+
+        A word is considered sentence-initial if it is at position 0 or
+        immediately follows sentence-ending punctuation (after optional
+        whitespace).
+
+        Args:
+            text: Full input text.
+            match_start: Start offset of the candidate match.
+
+        Returns:
+            True when the word is likely sentence-initial.
+        """
+        if match_start == 0:
+            return True
+        preceding = text[:match_start]
+        return bool(_SENTENCE_END_RE.search(preceding))
+
     def annotate(self, text: str) -> Generator[Entity, None, None]:
         """Extract proper nouns from text.
+
+        Mid-sentence capitalized words score 0.85; words at sentence
+        boundaries score 0.55 (below the default threshold of 0.65)
+        unless they form a multi-word compound (e.g. "John Doe"), in
+        which case the higher score applies regardless of position.
 
         Args:
             text: Input text to analyze.
@@ -121,11 +151,18 @@ class NamesNER(BaseAnnotator):
             if word in self._STOPWORDS:
                 continue
 
-            # Calculate confidence based on capitalization pattern
-            if word[0].isupper():
-                confidence = 0.8
+            is_compound = " " in word.strip()  # multi-word match → genuine name
+            at_start = self._at_sentence_start(text, match.start())
+
+            if is_compound:
+                # Multi-word proper noun — high confidence regardless of position
+                confidence = 0.85
+            elif at_start:
+                # Single word at sentence boundary — likely just capitalised grammar
+                confidence = 0.55
             else:
-                confidence = 0.65
+                # Single word mid-sentence — strong proper noun signal
+                confidence = 0.80
 
             # Skip if below threshold
             if confidence < self.confidence:
@@ -136,7 +173,7 @@ class NamesNER(BaseAnnotator):
                 "Noun",
                 source_text=text,
                 confidence=confidence,
-                data={"pattern": "proper_noun"},
+                data={"pattern": "proper_noun", "sentence_initial": at_start},
             )
 
 

@@ -34,16 +34,21 @@ dependencies = [
     "stopwordsiso>=0.6.1",
     "ahocorasick-ner>=0.1.1",
     "setuptools>=82.0.1",
-    "ahocorasick-ner>=0.1.1",
 ]
 
 [project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ovos-plugin-manager>=1.0.0",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
     "mypy>=1.0",
     "pre-commit>=3.0",
+    "ovos-plugin-manager>=1.0.0",
 ]
 
 [project.urls]

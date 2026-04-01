@@ -1,6 +1,15 @@
-# simple_NER
+# simple_NER — Complete Reference
 
 Rule-based Named Entity Recognition with multiple interchangeable backends and an OVOS Intent Transformer plugin.
+
+**Quick navigation:**
+- **[Getting Started](GETTING_STARTED.md)** — for new users; start here!
+- **[API Reference](API.md)** — class and method details
+- **[FAQ](FAQ.md)** — common questions and troubleshooting
+- **[Tutorials](TUTORIALS.md)** — step-by-step examples
+- **[Examples](../examples/README.md)** — 15+ runnable scripts
+
+This page is a deep reference for advanced users and developers.
 
 ## Architecture
 
@@ -428,10 +437,53 @@ The transformer runs the pipeline on every utterance and injects recognized enti
 
 ---
 
+## AhocorasickAnnotatorWrapper
+
+`AhocorasickAnnotatorWrapper` — `simple_NER/annotators/ahocorasick_wrapper.py`
+
+Adapts any `AhocorasickNER` instance (or subclass) as a `BaseAnnotator` for use in a `NERPipeline`. Accepts custom vocabularies built with `add_word` / `fit`, and the pre-built dataset loaders from `ahocorasick_ner.datasets` (e.g. `ImdbNER`, `MusicNER`, `EncyclopediaMetallvmNER`).
+
+```python
+from ahocorasick_ner import AhocorasickNER
+from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
+from simple_NER.pipeline import NERPipeline
+
+# Custom vocabulary — use min_word_len=1 for short terms
+ner = AhocorasickNER()
+ner.add_word("color", "red")
+ner.add_word("color", "blue")
+ner.fit()
+wrapper = AhocorasickAnnotatorWrapper(ner, min_word_len=1)
+
+pipeline = NERPipeline()
+pipeline.add_annotator(wrapper)
+for entity in pipeline.process("the sky is blue"):
+    print(entity.entity_type, entity.value)  # color  blue
+```
+
+**Constructor parameters:**
+
+| Parameter | Type | Default | Description |
+|:---|:---|:---|:---|
+| `ahocorasick_ner` | `AhocorasickNER` | — | Wrapped instance |
+| `lang` | str | `"en-us"` | Language code (API consistency) |
+| `confidence` | float | `0.9` | Default confidence for all entities |
+| `min_word_len` | int | `5` | Minimum match length forwarded to `AhocorasickNER.tag()`. Use `1` for short-term wordlists. |
+
+**Dataset loaders** from `ahocorasick_ner.datasets` are drop-in compatible:
+
+```python
+from ahocorasick_ner.datasets import ImdbNER
+wrapper = AhocorasickAnnotatorWrapper(ImdbNER())
+```
+
+---
+
 ## Links
 
-- [docs/TUTORIALS.md](TUTORIALS.md)
-- [docs/API.md](API.md)
-- [docs/FAQ.md](FAQ.md)
-- [examples/README.md](../examples/README.md)
+- [docs/TUTORIALS.md](TUTORIALS.md) — Step-by-step guides
+- [docs/API.md](API.md) — Class and method reference
+- [docs/FAQ.md](FAQ.md) — Common questions
+- [docs/DATASET_INTEGRATION.md](DATASET_INTEGRATION.md) — HuggingFace dataset usage (new!)
+- [examples/README.md](../examples/README.md) — Runnable examples
 - [GitHub](https://github.com/OpenJarbas/simple_NER)

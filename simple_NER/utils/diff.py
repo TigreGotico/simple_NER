@@ -1,6 +1,5 @@
 from collections.abc import Generator
 from difflib import SequenceMatcher
-from typing import Tuple
 
 
 class TextDiff:
@@ -20,7 +19,7 @@ class TextDiff:
         self.replaceCount: int = 0
         self.cruncher: SequenceMatcher = SequenceMatcher(None, self.source, self.target)
 
-    def dif_tags(self) -> Generator[Tuple[Tuple[str, str, str], Tuple[int, int], Tuple[int, int]], None, None]:
+    def dif_tags(self) -> Generator[tuple[tuple[str, str, str], tuple[int, int], tuple[int, int]], None, None]:
         """Yield tagged word-level diff operations.
 
         Yields:
