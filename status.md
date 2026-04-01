@@ -8,7 +8,7 @@
 - [x] Add `LookUpNER.add_word(label, word)` method with automaton rebuild
 - [x] Update `AhocorasickAnnotatorWrapper` docstring with `min_word_len` param doc and dataset-loader example
 - [x] Update `docs/index.md` `AhocorasickAnnotatorWrapper` section
-- [ ] Add tests: `min_word_len` forwarding (custom + default), `LookUpNER.add_word`, no-`_AhocorasickNER`-symbol check
+- [x] Add tests: `min_word_len` forwarding (custom + default), `LookUpNER.add_word`, no-`_AhocorasickNER`-symbol check
 - [ ] Run `uv run pytest test/ -v --cov=simple_NER --cov-report=term-missing`; confirm 462+ pass, coverage ≥ 89%
 
 ## Blockers

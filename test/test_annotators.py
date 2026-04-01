@@ -437,3 +437,40 @@ class TestIntegration:
 
         assert "name" in types or "greeting" in types  # depends on rule output
         assert "email" in types
+
+
+# ---------------------------------------------------------------------------
+# LookUpNER.add_word
+# ---------------------------------------------------------------------------
+
+class TestLookUpNERAddWord:
+    """Tests for LookUpNER.add_word() method."""
+
+    def test_add_word_new_label(self):
+        """add_word creates a new label and word is immediately queryable."""
+        from simple_NER.annotators.lookup_ner import LookUpNER
+        ner = LookUpNER(lang="xx")  # no-resource lang → empty entities
+        ner.add_word("color", "crimson")
+        entities = list(ner.annotate("crimson sky"))
+        assert len(entities) == 1
+        assert entities[0].value == "crimson"
+        assert entities[0].entity_type == "color"
+
+    def test_add_word_existing_label(self):
+        """add_word appends to an existing label without replacing it."""
+        from simple_NER.annotators.lookup_ner import LookUpNER
+        ner = LookUpNER(lang="xx")
+        ner.add_word("color", "crimson")
+        ner.add_word("color", "azure")
+        values = {e.value for e in ner.annotate("crimson and azure sky")}
+        assert "crimson" in values
+        assert "azure" in values
+
+    def test_add_word_rebuilds_automaton(self):
+        """Automaton is rebuilt after add_word so new word is found immediately."""
+        from simple_NER.annotators.lookup_ner import LookUpNER
+        ner = LookUpNER(lang="xx")
+        assert list(ner.annotate("crimson sky")) == []
+        ner.add_word("color", "crimson")
+        entities = list(ner.annotate("crimson sky"))
+        assert len(entities) == 1

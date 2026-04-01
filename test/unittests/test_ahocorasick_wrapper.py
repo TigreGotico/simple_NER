@@ -1,5 +1,10 @@
 """Tests for AhocorasickAnnotatorWrapper integration."""
+import subprocess
+import sys
+from unittest.mock import MagicMock
+
 import pytest
+
 from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
 from simple_NER.pipeline import NERPipeline
 
@@ -133,6 +138,36 @@ def test_case_insensitive_matching():
         assert entities[0].entity_type == "Name"
         # Original casing should be preserved
         assert entities[0].value == text.split()[0]
+
+
+def test_min_word_len_default_forwarded():
+    """Wrapper uses min_word_len=5 by default, matching AhocorasickNER.tag() default."""
+    mock_ner = MagicMock()
+    mock_ner.tag.return_value = []
+    wrapper = AhocorasickAnnotatorWrapper(mock_ner)
+    list(wrapper.annotate("hello world"))
+    mock_ner.tag.assert_called_once_with("hello world", min_word_len=5)
+
+
+def test_min_word_len_custom_forwarded():
+    """Custom min_word_len is forwarded to tag()."""
+    mock_ner = MagicMock()
+    mock_ner.tag.return_value = []
+    wrapper = AhocorasickAnnotatorWrapper(mock_ner, min_word_len=1)
+    list(wrapper.annotate("hi"))
+    mock_ner.tag.assert_called_once_with("hi", min_word_len=1)
+
+
+def test_no_private_alias_in_source():
+    """Confirm _AhocorasickNER private alias was removed from the simple_NER package."""
+    result = subprocess.run(
+        [sys.executable, "-m", "grep", "-r", "_AhocorasickNER", "simple_NER/"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout == "", (
+        f"_AhocorasickNER alias found in source:\n{result.stdout}"
+    )
 
 
 if __name__ == "__main__":
