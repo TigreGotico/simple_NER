@@ -6,9 +6,8 @@ Agent proposals for future improvements. Evidence-based; all items include a rat
 
 ## High Priority
 
-### S-001 — `NamesNER`: replace regex with a lightweight NER model
-- **Rationale**: The current capitalised-word regex produces ~30% false positives even with stopword filtering (e.g. "Send", "Meeting" at sentence boundaries). A small spaCy `en_core_web_sm` or `spacy-lookups-data` model would cut false positives dramatically with minimal overhead.
-- **Alternative**: Use `LookUpNER` with a first-name/last-name wordlist (e.g. from `names-dataset`) as a complement to the regex pass.
+### [DONE] S-001 — `NamesNER`: reduce sentence-boundary false positives
+- **Status**: Completed 2026-04-01 — sentence-position heuristic added: single words at sentence start (position 0 or after `.!?`) score 0.55 (below default threshold); mid-sentence words score 0.80; multi-word compound names always score 0.85 regardless of position. `sentence_initial` flag added to entity data. 10 new tests in `test/unittests/test_names_ner.py`.
 - **File**: `simple_NER/annotators/names_ner.py`
 
 ### [DONE] S-002 — `cities.json` deduplication / disambiguation

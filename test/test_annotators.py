@@ -260,12 +260,14 @@ class TestNamesNER:
         from simple_NER.annotators.names_ner import NamesNER
 
         ner = NamesNER()
+        # "Alice" is at position 0 (sentence-initial) → confidence 0.55, suppressed.
+        # "Bob" and "Charlie" are mid-sentence → confidence 0.80, kept.
         text = "Alice and Bob went to see Charlie"
         results = list(ner.extract_entities(text))
         names = {r.value for r in results}
-        assert "Alice" in names
         assert "Bob" in names
         assert "Charlie" in names
+        assert "Alice" not in names  # sentence-initial, below threshold
 
     def test_name_with_apostrophe(self):
         from simple_NER.annotators.names_ner import NamesNER
@@ -281,10 +283,21 @@ class TestNamesNER:
         from simple_NER.annotators.names_ner import NamesNER
 
         ner = NamesNER()
+        # Single word at position 0 → sentence-initial → confidence 0.55 (below threshold)
         text = "John"
         results = list(ner.extract_entities(text))
-        assert len(results) == 1
-        assert results[0].confidence == 0.8
+        assert len(results) == 0  # suppressed as sentence-initial
+
+    def test_confidence_mid_sentence(self):
+        from simple_NER.annotators.names_ner import NamesNER
+
+        ner = NamesNER()
+        # Mid-sentence proper noun → confidence 0.80
+        text = "I met John yesterday"
+        results = list(ner.extract_entities(text))
+        john = next((r for r in results if r.value == "John"), None)
+        assert john is not None
+        assert john.confidence == 0.8
 
 
 # ---------------------------------------------------------------------------
