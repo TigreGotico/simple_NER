@@ -324,3 +324,32 @@ See [DATASET_INTEGRATION.md](DATASET_INTEGRATION.md#dataset-filtering-selective-
 | 0.9.0 | Major refactor: async, caching, CLI, 16 annotators, OVOS plugin |
 | 0.8.1 | Type hints, linting, tests |
 | 0.4.x | Original release |
+
+---
+
+## Q: How do I integrate HuggingFace dataset taggers into a pipeline?
+
+Use `AhocorasickAnnotatorWrapper` from `simple_NER.annotators.ahocorasick_wrapper`:
+
+```python
+from ahocorasick_ner.datasets import WikidataAnimalNER
+from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
+from simple_NER.pipeline import NERPipeline
+
+pipeline = NERPipeline()
+pipeline.add_annotator(AhocorasickAnnotatorWrapper(WikidataAnimalNER()))
+for entity in pipeline.process("I saw a dog and a cat"):
+    print(entity.entity_type, entity.value)
+```
+
+See [DATASET_INTEGRATION.md](DATASET_INTEGRATION.md) for the full guide.
+
+---
+
+## Q: Why does `NamesNER` miss names at the start of a sentence?
+
+By design. Single capitalised words at sentence boundaries (position 0, or after `.!?`) score 0.55 confidence — below the default threshold of 0.65 — to suppress false positives like "Send" or "Meeting". Multi-word names ("John Doe") always score 0.85 regardless of position. Lower `confidence_threshold` to capture sentence-initial single names if needed:
+
+```python
+ner = NamesNER(confidence_threshold=0.5)
+```
