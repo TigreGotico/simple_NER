@@ -1,6 +1,4 @@
 """Tests for AhocorasickAnnotatorWrapper integration."""
-import subprocess
-import sys
 from unittest.mock import MagicMock
 
 import pytest
@@ -157,17 +155,6 @@ def test_min_word_len_custom_forwarded():
     list(wrapper.annotate("hi"))
     mock_ner.tag.assert_called_once_with("hi", min_word_len=1)
 
-
-def test_no_private_alias_in_source():
-    """Confirm _AhocorasickNER private alias was removed from the simple_NER package."""
-    result = subprocess.run(
-        [sys.executable, "-m", "grep", "-r", "_AhocorasickNER", "simple_NER/"],
-        capture_output=True,
-        text=True,
-    )
-    assert result.stdout == "", (
-        f"_AhocorasickNER alias found in source:\n{result.stdout}"
-    )
 
 
 if __name__ == "__main__":

@@ -22,9 +22,8 @@ class LookUpNER(BaseAnnotator):
     This annotator loads entity lists from ``.entity`` files in the
     resource directory and matches them against input text.
 
-    Backend: uses ``ahocorasick-ner`` (Aho-Corasick automaton) when
-    available for O(N) single-pass lookup regardless of wordlist size.
-    Falls back to per-pattern ``re.search`` if the package is absent.
+    Backend: uses ``ahocorasick-ner`` (Aho-Corasick automaton) for
+    O(N) single-pass lookup regardless of wordlist size.
 
     Language support: per-language resource files under ``res/<lang>/``.
 

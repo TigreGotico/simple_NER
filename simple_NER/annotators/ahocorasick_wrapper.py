@@ -66,7 +66,7 @@ class AhocorasickAnnotatorWrapper(BaseAnnotator):
 
         Args:
             ahocorasick_ner: An AhocorasickNER or subclass instance
-                (e.g. WikidataEntityNER, GenericHFDatasetNER, BC5CDRMedicalNER).
+                (e.g. ImdbNER, MusicNER, EncyclopediaMetallvmNER from ahocorasick_ner.datasets).
             lang: Language code (passed to BaseAnnotator for API consistency).
             confidence: Default confidence score for extracted entities.
             min_word_len: Minimum character length for a match to be returned.
