@@ -17,7 +17,7 @@ from simple_NER.annotators.base import BaseAnnotator
 from simple_NER.utils import resolve_resource_file
 from simple_NER.utils.log import LOG
 
-from ahocorasick_ner import AhocorasickNER as _AhocorasickNER
+from ahocorasick_ner import AhocorasickNER
 
 
 def _dedup_overlapping(matches: list[dict]) -> list[dict]:
@@ -170,7 +170,7 @@ class LocationNER(BaseAnnotator):
             self._meta[key] = data
             ac.add_word(label, surface)
 
-        ac = _AhocorasickNER(case_sensitive=not self.lowercase)
+        ac = AhocorasickNER(case_sensitive=not self.lowercase)
 
         if self._include_countries or self._include_capitals:
             for country in self._countries:
