@@ -49,6 +49,8 @@ class AhocorasickAnnotatorWrapper(BaseAnnotator):
         ahocorasick_ner,
         lang: str = "en-us",
         confidence: float = 0.9,
+        *,
+        min_word_len: int = 5,
     ) -> None:
         """Initialize wrapper.
 
@@ -57,9 +59,14 @@ class AhocorasickAnnotatorWrapper(BaseAnnotator):
                 (e.g. WikidataEntityNER, GenericHFDatasetNER, BC5CDRMedicalNER).
             lang: Language code (passed to BaseAnnotator for API consistency).
             confidence: Default confidence score for extracted entities.
+            min_word_len: Minimum character length for a match to be returned.
+                Forwarded to ``AhocorasickNER.tag()``. Default ``5`` matches the
+                underlying API default. Pass ``1`` when matching short wordlists
+                (e.g. colour names, country codes).
         """
         super().__init__(confidence=confidence, lang=lang)
         self.ner = ahocorasick_ner
+        self._min_word_len = min_word_len
 
     @property
     def name(self) -> str:
@@ -77,7 +84,7 @@ class AhocorasickAnnotatorWrapper(BaseAnnotator):
         Yields:
             Entity objects from the automaton matches.
         """
-        for match in self.ner.tag(text):
+        for match in self.ner.tag(text, min_word_len=self._min_word_len):
             # AhocorasickNER.tag() yields dicts with:
             # {'start': int, 'end': int, 'word': str, 'label': str}
             yield Entity(

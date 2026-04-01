@@ -19,7 +19,7 @@ class MockAhocorasickNER:
     def fit(self):
         pass
 
-    def tag(self, text):
+    def tag(self, text, min_word_len: int = 5):
         """Simple mock: yield matches for any word added."""
         results = []
         for label, words in self._words.items():
