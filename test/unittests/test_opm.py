@@ -3,13 +3,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Check if ovos_plugin_manager is available (it's not installed with 'test' extras)
-try:
-    import ovos_plugin_manager  # noqa: F401
-    HAS_OVOS_PLUGIN_MANAGER = True
-except ImportError:
-    HAS_OVOS_PLUGIN_MANAGER = False
-
 
 def _make_intent(utterance="reach me at foo@bar.com", match_data=None, lang=None):
     """Build a minimal mock IntentHandlerMatch."""
@@ -24,10 +17,6 @@ def _make_intent(utterance="reach me at foo@bar.com", match_data=None, lang=None
     return intent
 
 
-@pytest.mark.skipif(
-    not HAS_OVOS_PLUGIN_MANAGER,
-    reason="ovos_plugin_manager not installed (not in 'test' extras)",
-)
 class TestSimpleNERIntentTransformer:
     def _make_transformer(self, annotators=("email",), config=None):
         from simple_NER.opm import SimpleNERIntentTransformer
