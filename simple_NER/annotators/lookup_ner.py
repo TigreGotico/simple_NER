@@ -13,7 +13,7 @@ from simple_NER.annotators.base import BaseAnnotator
 from simple_NER.utils import resolve_resource_file
 from simple_NER.utils.log import LOG
 
-from ahocorasick_ner import AhocorasickNER as _AhocorasickNER
+from ahocorasick_ner import AhocorasickNER
 
 
 class LookUpNER(BaseAnnotator):
@@ -64,7 +64,7 @@ class LookUpNER(BaseAnnotator):
         self._case_sensitive = case_sensitive
         self._label_confidence: dict[str, float] = label_confidence or {}
         self.entities: dict[str, list[str]] = {}
-        self._ac: "_AhocorasickNER | None" = None
+        self._ac: AhocorasickNER | None = None
         self._load_entities()
         self._build_automaton()
 
@@ -120,7 +120,7 @@ class LookUpNER(BaseAnnotator):
         if not self.entities:
             self._ac = None
             return
-        ac = _AhocorasickNER(case_sensitive=self._case_sensitive)
+        ac = AhocorasickNER(case_sensitive=self._case_sensitive)
         for label, wordlist in self.entities.items():
             for word in wordlist:
                 if word:
