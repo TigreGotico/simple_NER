@@ -154,6 +154,9 @@ class LookUpNER(BaseAnnotator):
     def add_word(self, label: str, word: str) -> None:
         """Add a single word to an entity type at runtime.
 
+        Rebuilds the automaton on every call. For bulk additions prefer
+        :meth:`add_wordlist`, which rebuilds only once.
+
         Args:
             label: Entity type label for the word.
             word: Word or phrase to match.
