@@ -110,7 +110,7 @@ class LocationNER(BaseAnnotator):
         self._cities: list[dict[str, Any]] = []
         # Keyed by "<label>|<canonical_name>" → entity data dict
         self._meta: dict[str, dict[str, Any]] = {}
-        self._ac: Any = None  # AhocorasickNER or None
+        self._ac: AhocorasickNER | None = None
         self._load_vocab()
         self._build_automaton()
 
