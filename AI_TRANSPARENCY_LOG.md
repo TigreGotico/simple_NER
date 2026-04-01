@@ -4,6 +4,21 @@ Date-stamped log of AI-assisted changes.
 
 ---
 
+## 2026-04-01 (sprint 2)
+
+**AI Model**: Claude Sonnet 4.6
+
+**Actions Taken**:
+- `refactor`: Removed `_AhocorasickNER` private alias from `lookup_ner.py` and `locations_ner.py`; import is now under public name `AhocorasickNER`. Type annotation string literal on `_ac` field also cleaned up.
+- `feat`: Added `min_word_len: int = 5` keyword-only param to `AhocorasickAnnotatorWrapper.__init__`; forwarded to `AhocorasickNER.tag()` on every `annotate()` call.
+- `feat`: Added `LookUpNER.add_word(label, word)` for single-word runtime registration (previously only `add_wordlist()` existed).
+- `docs`: Rewrote `AhocorasickAnnotatorWrapper` class docstring with two usage examples (custom vocab + dataset loader). Added `AhocorasickAnnotatorWrapper` section to `docs/index.md` with constructor param table.
+- `test`: +6 tests — `min_word_len` forwarding (default + custom), `LookUpNER.add_word` (new label, existing label, rebuild), no-private-alias source check. Total: 468 tests.
+
+**Oversight**: Human reviewed and approved all commits before push.
+
+---
+
 ## 2026-04-01
 
 **AI Model**: Claude Sonnet 4.6
