@@ -53,3 +53,27 @@ Agent proposals for future improvements. Evidence-based; all items include a rat
 ### [DONE] S-010 — `CurrencyAnnotator`: extend `_AMT` to handle European decimal notation (`1.000,50`)
 - **Status**: Completed 2026-03-31 — `_AMT` pattern extended and `_normalize_amount()` added; `1.000,50 €` now parses correctly as 1000.50.
 - **File**: `simple_NER/annotators/currency_ner.py`
+
+---
+
+## Pending Fixes
+
+### S-011 — Fix `test_no_private_alias_in_source` false-pass bug (TECH-012)
+- **Rationale**: Current implementation uses `subprocess.run([sys.executable, "-m", "grep", ...])` which silently fails (Python has no grep module). Test always passes vacuously, providing zero regression protection against the private alias being re-introduced.
+- **Approach**: Use pure-Python pathlib walk + regex, or call system `grep` binary directly.
+- **Effort**: Low — ~15 lines of code
+
+### S-012 — Document `LookUpNER.add_word()` O(n²) caveat (TECH-013)
+- **Rationale**: Users adding many words in a loop will trigger redundant automaton rebuilds. Should be called out in docstring.
+- **Approach**: Add note in docstring: "For bulk additions, prefer `add_wordlist()` (single rebuild) over `add_word()` in a loop."
+- **Effort**: Trivial — docstring update only
+
+### S-013 — Align type annotations for `_ac` across `LookUpNER` and `LocationNER` (TECH-014)
+- **Rationale**: Consistency — both should use `AhocorasickNER | None` type annotation instead of `Any`.
+- **File**: `simple_NER/annotators/locations_ner.py:113`
+- **Effort**: Trivial — one-line change
+
+### S-014 — Update `AhocorasickAnnotatorWrapper` docstring dataset class examples (TECH-016)
+- **Rationale**: Referenced class names (`WikidataEntityNER`, etc.) do not exist in `ahocorasick_ner.datasets`; actual classes are `EncyclopediaMetallvmNER`, `MusicNER`, `ImdbNER`. Documentation should match reality.
+- **File**: `simple_NER/annotators/ahocorasick_wrapper.py:59`
+- **Effort**: Low — verify installed classes, update docstring

@@ -1,6 +1,15 @@
-# simple_NER
+# simple_NER — Complete Reference
 
 Rule-based Named Entity Recognition with multiple interchangeable backends and an OVOS Intent Transformer plugin.
+
+**Quick navigation:**
+- **[Getting Started](GETTING_STARTED.md)** — for new users; start here!
+- **[API Reference](API.md)** — class and method details
+- **[FAQ](FAQ.md)** — common questions and troubleshooting
+- **[Tutorials](TUTORIALS.md)** — step-by-step examples
+- **[Examples](../examples/README.md)** — 15+ runnable scripts
+
+This page is a deep reference for advanced users and developers.
 
 ## Architecture
 
