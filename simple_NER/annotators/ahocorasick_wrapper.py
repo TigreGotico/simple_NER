@@ -17,29 +17,39 @@ logger = logging.getLogger(__name__)
 class AhocorasickAnnotatorWrapper(BaseAnnotator):
     """Wrap an AhocorasickNER instance as a BaseAnnotator.
 
-    This allows ahocorasick-ner's pre-built dataset loaders (WikidataEntityNER,
-    GenericHFDatasetNER, BC5CDRMedicalNER, etc.) to be used in simple_NER
-    pipelines without modification.
+    Accepts any ``AhocorasickNER`` instance or subclass, including the
+    pre-built dataset loaders shipped in ``ahocorasick_ner.datasets``
+    (e.g. ``EncyclopediaMetallvmNER``, ``MusicNER``, ``ImdbNER``) and any
+    custom subclass built with ``add_word`` / ``fit``.
 
     Language support: Depends on wrapped AhocorasickNER instance.
 
-    Example:
+    Example — custom vocabulary:
         ```python
-        from ahocorasick_ner.datasets import WikidataEntityNER
+        from ahocorasick_ner import AhocorasickNER
         from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
         from simple_NER.pipeline import NERPipeline
 
-        # Create ahocorasick instance
-        animals = WikidataEntityNER(entity_type="Animal", wikidata_qid="Q729")
+        ner = AhocorasickNER()
+        ner.add_word("color", "red")
+        ner.add_word("color", "blue")
+        ner.fit()
 
-        # Wrap it
-        wrapper = AhocorasickAnnotatorWrapper(animals, lang="en")
-
-        # Use in pipeline
+        wrapper = AhocorasickAnnotatorWrapper(ner, min_word_len=1)
         pipeline = NERPipeline()
         pipeline.add_annotator(wrapper)
 
-        for entity in pipeline.process("I saw a dog and a cat"):
+        for entity in pipeline.process("the sky is blue"):
+            print(entity.entity_type, entity.value)  # color  blue
+        ```
+
+    Example — dataset loader from ``ahocorasick_ner.datasets``:
+        ```python
+        from ahocorasick_ner.datasets import ImdbNER
+        from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
+
+        wrapper = AhocorasickAnnotatorWrapper(ImdbNER())
+        for entity in wrapper.extract_entities("I watched The Matrix last night"):
             print(entity.entity_type, entity.value)
         ```
     """
