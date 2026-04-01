@@ -430,8 +430,9 @@ The transformer runs the pipeline on every utterance and injects recognized enti
 
 ## Links
 
-- [docs/TUTORIALS.md](TUTORIALS.md)
-- [docs/API.md](API.md)
-- [docs/FAQ.md](FAQ.md)
-- [examples/README.md](../examples/README.md)
+- [docs/TUTORIALS.md](TUTORIALS.md) — Step-by-step guides
+- [docs/API.md](API.md) — Class and method reference
+- [docs/FAQ.md](FAQ.md) — Common questions
+- [docs/DATASET_INTEGRATION.md](DATASET_INTEGRATION.md) — HuggingFace dataset usage (new!)
+- [examples/README.md](../examples/README.md) — Runnable examples
 - [GitHub](https://github.com/OpenJarbas/simple_NER)

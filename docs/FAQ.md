@@ -207,6 +207,114 @@ entities = asyncio.run(pipeline.process_async(text))
 - [Tutorials](TUTORIALS.md)
 - [Issues](https://github.com/OpenJarbas/simple_NER/issues)
 
+### Q: How do I use HuggingFace datasets for entity extraction?
+
+**A:** simple_NER integrates with **ahocorasick-ner**, which provides fast multi-entity matching via pre-built HuggingFace dataset loaders. Install the optional dependency:
+
+```bash
+pip install "ahocorasick-ner[datasets]"
+```
+
+Then use dataset NER classes in a simple_NER pipeline:
+
+```python
+from ahocorasick_ner.datasets import WikidataEntityNER, BC5CDRMedicalNER
+from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
+from simple_NER.pipeline import NERPipeline
+
+pipeline = NERPipeline()
+
+# Extract animals from Wikidata
+animals = WikidataEntityNER(entity_type="Animal", wikidata_qid="Q729")
+pipeline.add_annotator(AhocorasickAnnotatorWrapper(animals))
+
+# Extract diseases from biomedical literature
+diseases = BC5CDRMedicalNER(entity_type="Disease")
+pipeline.add_annotator(AhocorasickAnnotatorWrapper(diseases))
+
+for entity in pipeline.process("Dogs can get arthritis and heart disease"):
+    print(entity.entity_type, entity.value)
+# Animal  Dogs
+# Disease arthritis
+# Disease heart disease
+```
+
+**Available dataset loaders** (in ahocorasick-ner):
+
+**Wikidata Entities (easy-access subclasses — no QID needed):**
+- `WikidataAnimalNER` — animals (1M+ names, all languages)
+- `WikidataPlantNER` — plants (500k+ names)
+- `WikidataCountryNER` — countries (195 names)
+- `WikidataCityNER` — cities (worldwide)
+- `WikidataPersonNER` — person names (100M+ from Q5)
+- `WikidataProfessionNER` — professions/occupations
+- `WikidataDiseaseNER` — diseases and medical conditions
+- `WikidataLanguageNER` — languages of the world
+- `WikidataSportNER` — sports and athletic activities
+- `WikidataBodyPartNER` — anatomical body parts
+- `WikidataFamilyRelationNER` — family relationships
+- **Or generic**: `WikidataEntityNER(entity_type="...", wikidata_qid="...")` for custom QIDs
+
+**Names & Locations:**
+- `PersonNamesNER` — person surnames (30+ countries/languages)
+- `GeoNamesNER` — 280k+ cities and locations worldwide
+
+**Generic HuggingFace datasets:**
+- `GenericHFDatasetNER` — any HF dataset with entities in a column
+- `BC5CDRMedicalNER` — diseases and chemicals from biomedical NER
+
+**Media & Entertainment (Jarbas/TigreGotico):**
+- `MovieActorNER` — 6.3M movie actor names
+- `MovieDirectorNER` — 128k movie director names
+- `MovieComposerNER` — 221k movie composer names
+- `MetalArchivesBandsNER` — 4.6k metal band names
+- `MetalArchivesTrackNER` — 205k metal tracks + albums
+- `JazzNER` — jazz artists and genres
+- `ProgRockNER` — prog rock artists and genres
+- `MusicNER` — comprehensive music dataset (all genres combined)
+- `EncyclopediaMetallvmNER`, `ImdbNER` — pre-built combined datasets
+
+See [`ahocorasick-ner` docs](https://github.com/OpenJarbas/ahocorasick-ner) for full list.
+
+### Q: How do I filter datasets to extract only specific entities?
+
+**A:** Many dataset loaders support filtering by column values. This reduces the automaton size and improves matching speed.
+
+**Supported loaders:**
+- `MetalArchivesBandsNER(origin="Portugal")` — metal bands from a country
+- `MetalArchivesTrackNER(band_origin="Sweden")` — tracks from bands in a country
+- `SpotifyTracksNER(genre="rock")` — tracks from a genre
+- `GenericHFDatasetNER(..., filter_column="col", filter_value="val")` — any HF dataset
+
+**Example:**
+```python
+from ahocorasick_ner.datasets import MetalArchivesBandsNER, SpotifyTracksNER
+from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
+from simple_NER.pipeline import NERPipeline
+
+pipeline = NERPipeline()
+
+# Only Portuguese bands
+pt_bands = MetalArchivesBandsNER(origin="Portugal")
+pipeline.add_annotator(AhocorasickAnnotatorWrapper(pt_bands))
+
+# Only rock tracks
+rock = SpotifyTracksNER(genre="rock")
+pipeline.add_annotator(AhocorasickAnnotatorWrapper(rock))
+
+for entity in pipeline.process("Moonspell and Queen"):
+    print(entity.entity_type, entity.value)
+# metal_band Moonspell
+# track_name (Queen songs if available in rock)
+```
+
+**Benefits:**
+- 50–90% smaller automaton (less memory)
+- Faster matching on domain-specific data
+- Semantic clarity (fewer false positives)
+
+See [DATASET_INTEGRATION.md](DATASET_INTEGRATION.md#dataset-filtering-selective-loading) for more examples.
+
 ---
 
 ## Version History
