@@ -22,7 +22,7 @@ Evidence-based issues with `file.py:LINE` citations.
 |----|-------|-------|
 | TECH-001 | `keywords/rake.py` 26-byte stub | 2026-03-30 — deleted |
 | TECH-003 | NeuralNER / padatious removed | 2026-03-30 — deleted |
-| TECH-004 | `utils/diff.py` untyped | 2026-03-30 |
+| TECH-004 | `utils/diff.py` untyped | 2026-04-01 — `Tuple` replaced with built-in `tuple`, unused `typing.Tuple` import removed |
 | TECH-006 | `opm.py` hallucinated OVOS API | 2026-03-30 — rewritten |
 | TECH-007 | NeuralNER stale reference | 2026-03-30 — moot (file deleted) |
 | setup.py | Stale setup.py with wrong deps | 2026-03-30 — deleted |
