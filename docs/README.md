@@ -37,7 +37,6 @@ Contributing or maintaining simple_NER:
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)** — development setup, testing, commit conventions
 - **[AUDIT.md](../AUDIT.md)** — known issues, technical debt (with `file.py:LINE` citations)
 - **[SUGGESTIONS.md](../SUGGESTIONS.md)** — proposed improvements (open and completed)
-- **[AI_TRANSPARENCY_LOG.md](../AI_TRANSPARENCY_LOG.md)** — AI-assisted changes with oversight notes
 
 ## Which Annotator Should I Use?
 
