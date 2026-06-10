@@ -1,8 +1,0 @@
-requests
-quantulum3
-nltk
-numpy
-lingua_nostra>=0.4.2
-simplematch
-quebra_frases>=0.3.7
-RAKEkeywords>=0.2.0
