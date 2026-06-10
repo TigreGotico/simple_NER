@@ -4,7 +4,7 @@ Lightweight named-entity recognition library with pluggable annotators, multi-la
 
 [![PyPI - Version](https://img.shields.io/pypi/v/simple_NER.svg)](https://pypi.org/project/simple_NER/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/simple_NER.svg)](https://pypi.org/project/simple_NER/)
-[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/OpenJarbas/simple_NER/build_tests.yml)](https://github.com/OpenJarbas/simple_NER/actions)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/TigreGotico/simple_NER/build-tests.yml)](https://github.com/TigreGotico/simple_NER/actions)
 
 ## Installation
 
@@ -157,6 +157,6 @@ into `match_data` before intent handling proceeds.
 - [examples/README.md](examples/README.md) — 15+ runnable scripts (quick start, all annotators, async, custom types, OVOS plugin, etc.)
 
 **Project info:**
-- [GitHub](https://github.com/OpenJarbas/simple_NER) — source code, issues, discussions
+- [GitHub](https://github.com/TigreGotico/simple_NER) — source code, issues, discussions
 - [CHANGELOG.md](CHANGELOG.md) — version history
 - [AUDIT.md](AUDIT.md) — known issues and technical debt
