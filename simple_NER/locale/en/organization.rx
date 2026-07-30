@@ -1,0 +1,3 @@
+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+)*\s+(?:Inc\.?|LLC|Corp\.?|Corporation|Ltd\.?|Limited|Co\.?|Company|Group|PLC|LLP|LP|Partnership|GmbH|AG|KG|OHG|UG|e\.V\.|SA|SAS|SARL|EURL|SNC|SCI|SRL|Srl|SpA|SPA|Ltda|LTDA|BV|NV|VOF|SE|SCE)\b
+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+)*\s+(?:University|College|Institute|Laboratory|School|Université|Universidad|Universidade|Università|Universität|Hochschule)\b
+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+)*\s+(?:Hospital|Clinic|Medical\s+Center|Clinique|Clínica|Clinica|Krankenhaus)\b

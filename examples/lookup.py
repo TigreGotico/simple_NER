@@ -18,7 +18,7 @@ for ent in ner.entity_lookup("where is Kevin", as_json=True):
 
 # pre loaded list of entities under /res/en-us
 
-from simple_NER.annotators.lookup import LookUpNER
+from simple_NER.annotators.lookup_ner import LookUpNER
 
 ner = LookUpNER()
 

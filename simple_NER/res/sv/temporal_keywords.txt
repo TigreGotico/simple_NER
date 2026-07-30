@@ -1,0 +1,35 @@
+idag
+imorgon
+igår
+nu
+strax
+i morse
+i kväll
+i natt
+i övermorgon
+i förrgår
+måndag
+tisdag
+onsdag
+torsdag
+fredag
+lördag
+söndag
+sekund
+minut
+timme
+dag
+vecka
+månad
+år
+decennium
+sekel
+snart
+sent
+nyligen
+nästa
+förra
+sedan
+efter
+innan
+under

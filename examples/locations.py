@@ -1,6 +1,6 @@
 from pprint import pprint
-from simple_NER.annotators.locations import LocationNER, CitiesNER
 
+from simple_NER.annotators.locations_ner import CitiesNER, LocationNER
 
 ner = LocationNER()
 # NOTE: case sensitive, enable detection of lowercase cities/countries

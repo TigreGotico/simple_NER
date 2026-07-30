@@ -1,0 +1,2 @@
+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+)*\s+(?:B\.V\.|N\.V\.|V\.O\.F\.|C\.V\.)\b
+(?:Stichting|Vereniging)\s+[A-Z][A-Za-z\s\-]+
