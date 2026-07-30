@@ -18,7 +18,7 @@ pipe = create_pipeline(
 
 text = (
     "Contact sales@acme.com or call +1-800-555-0199. "
-    "Visit https://acme.com. Our Q3 sale ends 2025-09-30 — save $49.99!"
+    "Visit https://acme.com. Our Q3 sale ends 2025-09-30: save $49.99!"
 )
 
 for entity in pipe.process(text):
@@ -94,9 +94,9 @@ keep_first                → [('currency', '$500'), ('number', '500')]
 
 | Strategy | Use case |
 |:---|:---|
-| `keep_all` | Downstream dedup; analysis pipelines where you want every candidate |
+| `keep_all` | Downstream dedup, or analysis pipelines where you want every candidate |
 | `keep_longest` | Named entities where longer span = more specific (e.g. `"New York City"` over `"New York"`) |
-| `keep_higher_confidence` | Mixed-confidence annotators; trust the most certain result |
+| `keep_higher_confidence` | Mixed-confidence annotators, trust the most certain result |
 | `keep_first` | Deterministic output when annotator order is meaningful |
 
 ---
@@ -136,7 +136,7 @@ Text: Wir haben drei Artikel für 1.200,00 EUR bestellt.
   currency     '1.200,00 EUR'
 ```
 
-**Note:** Pass `lang="de-de"` to `create_pipeline` — it is forwarded to all annotators that
+**Note:** Pass `lang="de-de"` to `create_pipeline`: it is forwarded to all annotators that
 support it. Annotators without locale data for `de-de` fall back to `en-us` automatically.
 
 ---
@@ -181,12 +181,12 @@ InternalCode    'PROJ-ALPHA'         conf=0.85
 
 **Goal:** Subclass `BaseAnnotator` to detect ISBN numbers using a locale `.rx` file.
 
-**Step 1 — Create the locale file** `simple_NER/locale/en-us/isbn.rx`:
+**Step 1: Create the locale file** `simple_NER/locale/en-us/isbn.rx`:
 ```
 ISBN(?:-1[03])?:?\s*(?:[0-9]{9}[0-9X]|(?:[0-9]{3}-?){4}[0-9X])
 ```
 
-**Step 2 — Implement the annotator:**
+**Step 2: Implement the annotator:**
 
 ```python
 from simple_NER.annotators.base import BaseAnnotator
@@ -216,7 +216,7 @@ class ISBNAnnotator(BaseAnnotator):
                 )
 ```
 
-**Step 3 — Use it:**
+**Step 3: Use it:**
 
 ```python
 from simple_NER.pipeline import NERPipeline
@@ -306,5 +306,8 @@ runs the pipeline and injects recognized entities into `match_data` before inten
 ```
 
 Only entities with `confidence >= confidence_threshold` are injected.
-The plugin is auto-discovered via the `opm.transformer.intent` entry-point group —
-no import is needed; installing `simple_NER` is sufficient.
+The plugin is auto-discovered via the `opm.transformer.intent` entry-point group.
+No import is needed. Installing `simple_NER` is sufficient.
+
+---
+[← Complete Reference](index.md) · [Home](README.md) · [Dependencies →](DEPENDENCIES.md)

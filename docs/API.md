@@ -19,13 +19,17 @@ entity = Entity(
 ```
 
 **Attributes:**
+
 - `value` (str): The extracted text
 - `entity_type` (str): Category label (e.g., "email", "person")
 - `source_text` (str): Original input text
+
 - `confidence` (float): Confidence score [0.0-1.0]
+
 - `data` (dict): Additional metadata
 - `spans` (list[tuple[int, int]]): Character positions in source_text
 - `indexes` (list[int]): Start positions of matches
+
 - `occurrence_number` (int): Number of occurrences
 
 **Methods:**
@@ -48,10 +52,13 @@ for entity in ner.extract_entities("I ate an apple"):
 ```
 
 **Methods:**
+
 - `add_entity_examples(name: str, examples: str | list[str])`: Register examples
 - `extract_entities(text: str, as_json: bool = False) -> Generator[Entity, None, None]`: Extract entities
 - `entity_lookup(text: str, as_json: bool = False) -> Generator[Entity, None, None]`: Lookup by examples
+
 - `is_match(text: str, entity: str | Entity) -> bool`: Check if entity exists in text
+
 - `in_place_annotation(text: str) -> str`: Annotate text with entity labels
 
 ---
@@ -222,9 +229,11 @@ for ent in ner.extract_entities("Lisbon is capital of Portugal"):
 ```
 
 **Parameters:**
+
 - `include_countries` (bool): Extract country names
 - `include_capitals` (bool): Extract capital cities
 - `include_cities` (bool): Extract all cities
+
 - `lowercase` (bool): Case-insensitive matching
 
 ---
@@ -250,6 +259,7 @@ for ent in ner.extract_entities("wait 5 minutes"):
 ```
 
 **Parameters:**
+
 - `anchor_date` (datetime): Reference date for relative expressions
 - `extract_datetime` (bool): Enable datetime extraction
 - `extract_duration` (bool): Enable duration extraction
@@ -271,6 +281,7 @@ for ent in ner.extract_entities("three hundred apples"):
 ```
 
 **Parameters:**
+
 - `ordinals` (bool): Extract ordinal numbers (1st, 2nd, third)
 - `short_scale` (bool): US (short) vs UK (long) scale
 - `case_sensitive` (bool): Case-sensitive matching
@@ -292,6 +303,7 @@ for ent in ner.extract_entities("Machine learning is amazing"):
 ```
 
 **Parameters:**
+
 - `lang` (str): Language code
 - `min_word_length` (int): Minimum keyword length
 - `confidence` (float): Minimum confidence threshold
@@ -337,6 +349,7 @@ for ent in ner.extract_entities("The sky is blue"):
 - `case_sensitive` (bool): Case-sensitive matching
 
 **Methods:**
+
 - `add_wordlist(label: str, words: list[str])`: Add custom wordlist
 - `remove_wordlist(label: str) -> bool`: Remove wordlist
 - `loaded_types -> list[str]`: List loaded entity types
@@ -365,15 +378,19 @@ for ent in entities:
 ```
 
 **Deduplication Strategies:**
+
 - `"keep_all"`: No deduplication
 - `"keep_longest"`: Keep longest entity on overlap
 - `"keep_higher_confidence"`: Keep higher confidence entity
+
 - `"keep_first"`: Keep first detected entity
 
 **Methods:**
+
 - `add_annotator(annotator: Annotator)`: Add annotator
 - `remove_annotator(name: str) -> bool`: Remove by name
 - `process(text: str) -> list[Entity]`: Process and deduplicate
+
 - `process_generator(text: str) -> Generator[Entity, None, None]`: Stream results
 
 ---
@@ -410,9 +427,11 @@ register_annotator("my_annotator", MyCustomAnnotator)
 ```
 
 **Functions:**
+
 - `get_annotator(name: str, **kwargs) -> Annotator`: Create by name
 - `create_pipeline(names: list[str], dedup_strategy: str, **kwargs) -> NERPipeline`: Create pipeline
 - `list_available_annotators() -> list[str]`: List registered names
+
 - `register_annotator(name: str, annotator_class: type[Annotator])`: Register custom
 
 ---
@@ -424,18 +443,36 @@ register_annotator("my_annotator", MyCustomAnnotator)
 | `email` | EmailAnnotator | Email addresses |
 | `email_regex` | EmailNER | Email (regex version) |
 | `names` | NamesNER | Proper nouns |
+
+| Name | Class | Description |
+|------|-------|-------------|
 | `locations` | LocationNER | Countries, capitals, cities |
 | `countries` | LocationNER | Countries only |
+
+| Name | Class | Description |
+|------|-------|-------------|
 | `cities` | LocationNER | Cities only |
 | `temporal` | TemporalNER | Datetime and duration |
 | `datetime` | TemporalNER | Datetime only |
+
+| Name | Class | Description |
+|------|-------|-------------|
 | `duration` | TemporalNER | Duration only |
 | `numbers` | NumberNER | Written numbers |
+
+| Name | Class | Description |
+|------|-------|-------------|
 | `written_numbers` | NumberNER | Written numbers (alias) |
 | `keywords` | KeywordNER | RAKE keywords |
 | `units` | UnitsNER | Measurements |
+
+| Name | Class | Description |
+|------|-------|-------------|
 | `measurements` | UnitsNER | Measurements (alias) |
 | `lookup` | LookUpNER | Wordlist lookup |
+
+| Name | Class | Description |
+|------|-------|-------------|
 | `wordlist` | LookUpNER | Wordlist (alias) |
 
 ---
@@ -500,3 +537,6 @@ Missing optional dependencies are handled with warnings:
 WARNING - quantulum3 not installed. UnitsNER will not function.
 Install with: pip install quantulum3
 ```
+
+---
+[← FAQ](FAQ.md) · [Home](README.md) · [Complete Reference →](index.md)

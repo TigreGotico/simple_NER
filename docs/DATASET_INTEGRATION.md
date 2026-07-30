@@ -36,7 +36,7 @@ pip install simple_NER "ahocorasick-ner[datasets]"
 
 ## Wikidata Entities (Easiest)
 
-Use dedicated subclasses — **no QIDs required**.
+Use dedicated subclasses: **no QIDs required**.
 
 ### Available Subclasses
 
@@ -533,7 +533,7 @@ Many dataset loaders support filtering by column values to extract only entities
 
 ### Why Filter?
 
-- **Smaller automaton:** 50–90% memory reduction
+- **Smaller automaton:** 50-90% memory reduction
 - **Faster matching:** Fewer entities to check
 - **Domain-specific extraction:** Only relevant entities for your use case
 - **Production efficiency:** Load only what you need
@@ -688,7 +688,7 @@ for entity in pipeline.process(text):
 1. **Cache Automatons:** Use the `path` parameter to save/load pre-built automatons:
    ```python
    animals = WikidataAnimalNER(path="/tmp/animals.ahocorasick")
-   # First call downloads and saves; subsequent calls load from disk
+   # First call downloads and saves, subsequent calls load from disk
    ```
 
 2. **Dedup Strategy:** Choose appropriate dedup strategy:
@@ -716,6 +716,9 @@ For full details on all available datasets, entity labels, and sizes, see:
 
 ## See Also
 
-- [FAQ.md](FAQ.md) — Quick reference for common questions
-- [examples/wikidata_subclasses_example.py](../examples/wikidata_subclasses_example.py) — Runnable examples
-- [examples/huggingface_datasets_example.py](../examples/huggingface_datasets_example.py) — More examples
+- [FAQ.md](FAQ.md): Quick reference for common questions
+- [examples/wikidata_subclasses_example.py](../examples/wikidata_subclasses_example.py): Runnable examples
+- [examples/huggingface_datasets_example.py](../examples/huggingface_datasets_example.py): More examples
+
+---
+[← Migration](MIGRATION.md) · [Home](README.md)

@@ -48,8 +48,8 @@ Several annotators have been unified:
 
 | Old Classes | New Class | Status |
 |-------------|-----------|--------|
-| `DateTimeNER`, `TimedeltaNER` | `TemporalNER` | ✅ Aliases maintained |
-| `LocationNER`, `CitiesNER` | `LocationNER` | ✅ Alias maintained |
+| `DateTimeNER`, `TimedeltaNER` | `TemporalNER` | Aliases maintained |
+| `LocationNER`, `CitiesNER` | `LocationNER` | Alias maintained |
 
 **Before:**
 ```python
@@ -214,18 +214,18 @@ pipeline = NERPipeline(
 
 | Feature | Old API | New API | Status |
 |---------|---------|---------|--------|
-| `Entity` | ✅ | ✅ | Unchanged |
-| `SimpleNER` | ✅ | ✅ | Unchanged |
-| `RuleNER` | ✅ | ✅ | Unchanged |
-| `RegexNER` | ✅ | ✅ | Improved (no shadowing) |
-| `NeuralNER` | ✅ | ✅ | Improved (no shadowing) |
-| `NERWrapper` | ✅ | ✅ | Still supported |
-| `DateTimeNER` | ✅ | ⚠️ | Alias to TemporalNER |
-| `TimedeltaNER` | ✅ | ⚠️ | Alias to TemporalNER |
-| `CitiesNER` | ✅ | ⚠️ | Alias to LocationNER |
-| `BaseAnnotator` | ❌ | ✅ | New |
-| `NERPipeline` | ❌ | ✅ | New |
-| Factory | ❌ | ✅ | New |
+| `Entity` | yes | yes | Unchanged |
+| `SimpleNER` | yes | yes | Unchanged |
+| `RuleNER` | yes | yes | Unchanged |
+| `RegexNER` | yes | yes | Improved (no shadowing) |
+| `NeuralNER` | yes | yes | Improved (no shadowing) |
+| `NERWrapper` | yes | yes | Still supported |
+| `DateTimeNER` | yes | alias | Alias to TemporalNER |
+| `TimedeltaNER` | yes | alias | Alias to TemporalNER |
+| `CitiesNER` | yes | alias | Alias to LocationNER |
+| `BaseAnnotator` | no | yes | New |
+| `NERPipeline` | no | yes | New |
+| Factory | no | yes | New |
 
 ---
 
@@ -294,4 +294,7 @@ class MyAnnotator(BaseAnnotator):
 
 - **Documentation:** `docs/API.md`
 - **Examples:** `examples/` directory
-- **Issues:** https://github.com/OpenJarbas/simple_NER/issues
+- **Issues:** [report a problem](https://github.com/TigreGotico/simple_NER/issues)
+
+---
+[← Installation](INSTALLATION.md) · [Home](README.md) · [Dataset Integration →](DATASET_INTEGRATION.md)

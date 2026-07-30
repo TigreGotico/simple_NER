@@ -12,11 +12,11 @@
 
 ### Q: What Python versions are supported?
 
-**A:** Python 3.10–3.13.
+**A:** Python 3.10-3.13.
 
 ### Q: How does it compare to spaCy or NLTK?
 
-**A:** simple_NER is lighter and rule-based — no ML models, no training data, easy to customize. spaCy/NLTK are better when statistical accuracy matters more than speed and interpretability.
+**A:** simple_NER is lighter and rule-based: no ML models, no training data, easy to customize. spaCy/NLTK are better when statistical accuracy matters more than speed and interpretability.
 
 ### Q: What languages are supported?
 
@@ -24,16 +24,19 @@
 
 | Annotator | Language coverage |
 |-----------|-------------------|
-| `TemporalNER`, `NumberNER` | Multi-language via `ovos-date-parser` / `ovos-number-parser`; pass `lang="de-de"` etc. |
-| `DateAnnotator` | Written month names in EN/ES/FR/DE/PT/IT/NL; numeric formats are language-agnostic |
-| `CurrencyAnnotator` | Currency words in EN/ES/FR/DE/PT/IT/NL; symbols/ISO codes are language-agnostic |
-| `OrganizationAnnotator` | Company suffixes for DE/FR/ES/PT/IT/NL/BE + English; accented Latin characters in name regex |
-| `HashtagAnnotator` | Fully Unicode-aware (`re.UNICODE`) — matches hashtags in any script |
+| `TemporalNER`, `NumberNER` | Multi-language via `ovos-date-parser` / `ovos-number-parser`, pass `lang="de-de"` or similar |
+| `DateAnnotator` | Written month names in EN/ES/FR/DE/PT/IT/NL, numeric formats are language-agnostic |
+| `CurrencyAnnotator` | Currency words in EN/ES/FR/DE/PT/IT/NL, symbols/ISO codes are language-agnostic |
+| `OrganizationAnnotator` | Company suffixes for DE/FR/ES/PT/IT/NL/BE and English, accented Latin characters in the name regex |
+| `HashtagAnnotator` | Fully Unicode-aware (`re.UNICODE`): matches hashtags in any script |
+
+| Annotator | Language coverage |
+|-----------|-------------------|
 | `LocationNER` | Language-agnostic (bundled JSON city/country names) |
 | `EmailAnnotator`, `URLAnnotator`, `PhoneAnnotator` | Language-agnostic (structural patterns) |
 | `LookUpNER` | Per-language via `.entity` resource files under `res/<lang>/` |
 
-Pass `lang` to any annotator or to `create_pipeline(names, lang="de-de")` — the factory forwards it to all constructors.
+Pass `lang` to any annotator or to `create_pipeline(names, lang="de-de")`: the factory forwards it to all constructors.
 
 ### Q: Is there an OVOS plugin?
 
@@ -137,7 +140,7 @@ results = processor.process_batch(texts, use_multiprocessing=True)
 
 ### High memory usage
 
-Use streaming — process one text at a time without storing all results:
+Use streaming: process one text at a time without storing all results:
 
 ```python
 from simple_NER.utils.batch import StreamingProcessor
@@ -194,18 +197,18 @@ entities = asyncio.run(pipeline.process_async(text))
 ## Known Limitations
 
 - Most annotators are **English-only** (see language support Q above).
-- `LocationNER` is **case-sensitive** by default; pass `lowercase=True` to disable.
+- `LocationNER` is case-sensitive by default. Pass `lowercase=True` to disable it.
 - Overlapping spans: use `dedup_strategy="keep_longest"` in `NERPipeline`.
-- Rule-based extraction only matches patterns you define — add more rules for more variation.
+- Rule-based extraction only matches patterns you define: add more rules for more variation.
 
 ---
 
 ## Getting Help
 
-- [README](../readme.md) — quick start
+- [README](../readme.md): quick start
 - [API Reference](API.md)
 - [Tutorials](TUTORIALS.md)
-- [Issues](https://github.com/OpenJarbas/simple_NER/issues)
+- [Issues](https://github.com/TigreGotico/simple_NER/issues)
 
 ### Q: How do I use HuggingFace datasets for entity extraction?
 
@@ -241,50 +244,56 @@ for entity in pipeline.process("Dogs can get arthritis and heart disease"):
 
 **Available dataset loaders** (in ahocorasick-ner):
 
-**Wikidata Entities (easy-access subclasses — no QID needed):**
-- `WikidataAnimalNER` — animals (1M+ names, all languages)
-- `WikidataPlantNER` — plants (500k+ names)
-- `WikidataCountryNER` — countries (195 names)
-- `WikidataCityNER` — cities (worldwide)
-- `WikidataPersonNER` — person names (100M+ from Q5)
-- `WikidataProfessionNER` — professions/occupations
-- `WikidataDiseaseNER` — diseases and medical conditions
-- `WikidataLanguageNER` — languages of the world
-- `WikidataSportNER` — sports and athletic activities
-- `WikidataBodyPartNER` — anatomical body parts
-- `WikidataFamilyRelationNER` — family relationships
+**Wikidata Entities (easy-access subclasses: no QID needed):**
+
+- `WikidataAnimalNER`: animals (1M+ names, all languages)
+- `WikidataPlantNER`: plants (500k+ names)
+- `WikidataCountryNER`: countries (195 names)
+- `WikidataCityNER`: cities (worldwide)
+
+- `WikidataPersonNER`: person names (100M+ from Q5)
+- `WikidataProfessionNER`: professions/occupations
+- `WikidataDiseaseNER`: diseases and medical conditions
+- `WikidataLanguageNER`: languages of the world
+
+- `WikidataSportNER`: sports and athletic activities
+- `WikidataBodyPartNER`: anatomical body parts
+- `WikidataFamilyRelationNER`: family relationships
 - **Or generic**: `WikidataEntityNER(entity_type="...", wikidata_qid="...")` for custom QIDs
 
 **Names & Locations:**
-- `PersonNamesNER` — person surnames (30+ countries/languages)
-- `GeoNamesNER` — 280k+ cities and locations worldwide
+- `PersonNamesNER`: person surnames (30+ countries/languages)
+- `GeoNamesNER`: 280k+ cities and locations worldwide
 
 **Generic HuggingFace datasets:**
-- `GenericHFDatasetNER` — any HF dataset with entities in a column
-- `BC5CDRMedicalNER` — diseases and chemicals from biomedical NER
+- `GenericHFDatasetNER`: any HF dataset with entities in a column
+- `BC5CDRMedicalNER`: diseases and chemicals from biomedical NER
 
 **Media & Entertainment (Jarbas/TigreGotico):**
-- `MovieActorNER` — 6.3M movie actor names
-- `MovieDirectorNER` — 128k movie director names
-- `MovieComposerNER` — 221k movie composer names
-- `MetalArchivesBandsNER` — 4.6k metal band names
-- `MetalArchivesTrackNER` — 205k metal tracks + albums
-- `JazzNER` — jazz artists and genres
-- `ProgRockNER` — prog rock artists and genres
-- `MusicNER` — comprehensive music dataset (all genres combined)
-- `EncyclopediaMetallvmNER`, `ImdbNER` — pre-built combined datasets
 
-See [`ahocorasick-ner` docs](https://github.com/OpenJarbas/ahocorasick-ner) for full list.
+- `MovieActorNER`: 6.3M movie actor names
+- `MovieDirectorNER`: 128k movie director names
+- `MovieComposerNER`: 221k movie composer names
+- `MetalArchivesBandsNER`: 4.6k metal band names
+
+- `MetalArchivesTrackNER`: 205k metal tracks + albums
+- `JazzNER`: jazz artists and genres
+- `ProgRockNER`: prog rock artists and genres
+- `MusicNER`: comprehensive music dataset (all genres combined)
+
+- `EncyclopediaMetallvmNER`, `ImdbNER`: pre-built combined datasets
+
+See [`ahocorasick-ner` docs](https://github.com/TigreGotico/ahocorasick-ner) for full list.
 
 ### Q: How do I filter datasets to extract only specific entities?
 
 **A:** Many dataset loaders support filtering by column values. This reduces the automaton size and improves matching speed.
 
 **Supported loaders:**
-- `MetalArchivesBandsNER(origin="Portugal")` — metal bands from a country
-- `MetalArchivesTrackNER(band_origin="Sweden")` — tracks from bands in a country
-- `SpotifyTracksNER(genre="rock")` — tracks from a genre
-- `GenericHFDatasetNER(..., filter_column="col", filter_value="val")` — any HF dataset
+- `MetalArchivesBandsNER(origin="Portugal")`: metal bands from a country
+- `MetalArchivesTrackNER(band_origin="Sweden")`: tracks from bands in a country
+- `SpotifyTracksNER(genre="rock")`: tracks from a genre
+- `GenericHFDatasetNER(..., filter_column="col", filter_value="val")`: any HF dataset
 
 **Example:**
 ```python
@@ -309,7 +318,7 @@ for entity in pipeline.process("Moonspell and Queen"):
 ```
 
 **Benefits:**
-- 50–90% smaller automaton (less memory)
+- 50-90% smaller automaton (less memory)
 - Faster matching on domain-specific data
 - Semantic clarity (fewer false positives)
 
@@ -348,8 +357,11 @@ See [DATASET_INTEGRATION.md](DATASET_INTEGRATION.md) for the full guide.
 
 ## Q: Why does `NamesNER` miss names at the start of a sentence?
 
-By design. Single capitalised words at sentence boundaries (position 0, or after `.!?`) score 0.55 confidence — below the default threshold of 0.65 — to suppress false positives like "Send" or "Meeting". Multi-word names ("John Doe") always score 0.85 regardless of position. Lower `confidence_threshold` to capture sentence-initial single names if needed:
+By design. Single capitalized words at sentence boundaries (position 0, or after `.!?`) score 0.55 confidence. This is below the default threshold of 0.65, so it suppresses false positives like "Send" or "Meeting". Multi-word names ("John Doe") always score 0.85 regardless of position. Lower `confidence_threshold` to capture sentence-initial single names if needed:
 
 ```python
 ner = NamesNER(confidence_threshold=0.5)
 ```
+
+---
+[← Getting Started](GETTING_STARTED.md) · [Home](README.md) · [API Reference →](API.md)

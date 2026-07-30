@@ -31,15 +31,21 @@ for entity in pipe.process("Call +1-800-555-0100 or email info@example.com by 20
 | Factory key(s) | Class | Detects | Language |
 |:---|:---|:---|:---|
 | `email`, `email_regex` | EmailAnnotator / EmailNER | Email addresses | Any |
-| `names` | NamesNER | Person names (noun heuristic, confidence 0.65–0.8) | English / Latin |
+| `names` | NamesNER | Person names (noun heuristic, confidence 0.65-0.8) | English / Latin |
 | `locations`, `countries`, `cities` | LocationNER | Countries, capitals, cities | All (wordlist) |
 | `temporal`, `datetime`, `duration` | TemporalNER | Dates, times, durations | `lang` param |
 | `numbers`, `written_numbers` | NumberNER | Numeric and written numbers | `lang` param |
+
+| Factory key(s) | Class | Detects | Language |
+|:---|:---|:---|:---|
 | `lookup`, `wordlist` | LookUpNER | Custom wordlists | `lang` param |
 | `url`, `urls` | URLAnnotator | HTTP/HTTPS URLs | Any |
 | `phone`, `phone_number` | PhoneAnnotator | Phone numbers | Any |
 | `currency`, `money` | CurrencyAnnotator | Amounts + currency symbol/code | Any |
 | `organization`, `org`, `company` | OrganizationAnnotator | Org/company names | `lang` param |
+
+| Factory key(s) | Class | Detects | Language |
+|:---|:---|:---|:---|
 | `hashtag`, `hashtags`, `tag` | HashtagAnnotator | #hashtags | Any |
 | `date`, `dates` | DateAnnotator | Structured date strings | `lang` param |
 
@@ -65,6 +71,9 @@ Each `Entity` carries a `data` dict with annotator-specific fields:
 | PhoneAnnotator | `digits`, `digit_count`, `type` (international/us_national/local/other), `has_country_code`, `start`, `end` |
 | CurrencyAnnotator | `amount` (float), `currency` (ISO code), `currency_symbol`, `start`, `end` |
 | LocationNER | `country_code`, `label`, `start`, `end` |
+
+| Annotator | Extra fields in `data` |
+|:---|:---|
 | HashtagAnnotator | `tag_type` (shouting/lowercase/CamelCase/underscored/alphanumeric/mixed), `start`, `end` |
 | OrganizationAnnotator | `org_type` (company/educational/medical/other), `start`, `end` |
 | NumberNER | `number` (str, digit form), `start`, `end` |
@@ -99,7 +108,7 @@ All loaders fall back to `en-us` when no language-specific file exists.
 `intent_to_regex("{amount} dollars")` converts an intent template to a compiled `re.Pattern`.
 
 **Adding a new language**: create `simple_NER/locale/<lang>/` and place `.rx`, `.intent`, or `.txt` files
-that override the `en-us` defaults. Only the files you add are used; everything else falls back automatically.
+that override the `en-us` defaults. Only the files you add are used. Everything else falls back automatically.
 Inside a `BaseAnnotator` subclass, `self._load_rx("name")` and `self._load_intents("name")` resolve
 to `self.lang` automatically.
 
@@ -145,18 +154,18 @@ into `match_data` before intent handling proceeds.
 ## Documentation
 
 **New to simple_NER?** Start here:
-- [**Getting Started**](docs/GETTING_STARTED.md) — installation, first pipeline, common patterns
-- [**FAQ & Troubleshooting**](docs/FAQ.md) — answers to common questions
+- [**Getting Started**](docs/GETTING_STARTED.md): installation, first pipeline, common patterns
+- [**FAQ & Troubleshooting**](docs/FAQ.md): answers to common questions
 
 **Need details?**
-- [API Reference](docs/API.md) — class and method documentation
-- [Complete Architecture](docs/index.md) — design, all annotators, advanced topics
-- [Tutorials](docs/TUTORIALS.md) — step-by-step guides for specific use cases
+- [API Reference](docs/API.md): class and method documentation
+- [Complete Architecture](docs/index.md): design, all annotators, advanced topics
+- [Tutorials](docs/TUTORIALS.md): step-by-step guides for specific use cases
 
 **Learn by example:**
-- [examples/README.md](examples/README.md) — 15+ runnable scripts (quick start, all annotators, async, custom types, OVOS plugin, etc.)
+- [examples/README.md](examples/README.md): 15+ runnable scripts (quick start, all annotators, async, custom types, OVOS plugin, etc.)
 
 **Project info:**
-- [GitHub](https://github.com/TigreGotico/simple_NER) — source code, issues, discussions
-- [CHANGELOG.md](CHANGELOG.md) — version history
-- [AUDIT.md](AUDIT.md) — known issues and technical debt
+- [GitHub](https://github.com/TigreGotico/simple_NER): source code, issues, discussions
+- [CHANGELOG.md](CHANGELOG.md): version history
+- [AUDIT.md](AUDIT.md): known issues and technical debt
