@@ -1,13 +1,15 @@
-# simple_NER — Complete Reference
+# simple_NER: Complete Reference
 
 Rule-based Named Entity Recognition with multiple interchangeable backends and an OVOS Intent Transformer plugin.
 
 **Quick navigation:**
-- **[Getting Started](GETTING_STARTED.md)** — for new users; start here!
-- **[API Reference](API.md)** — class and method details
-- **[FAQ](FAQ.md)** — common questions and troubleshooting
-- **[Tutorials](TUTORIALS.md)** — step-by-step examples
-- **[Examples](../examples/README.md)** — 15+ runnable scripts
+
+- **[Getting Started](GETTING_STARTED.md)**: for new users, start here
+- **[API Reference](API.md)**: class and method details
+- **[FAQ](FAQ.md)**: common questions and troubleshooting
+- **[Tutorials](TUTORIALS.md)**: step-by-step examples
+
+- **[Examples](../examples/README.md)**: 15+ runnable scripts
 
 This page is a deep reference for advanced users and developers.
 
@@ -28,37 +30,40 @@ create_pipeline(names, dedup_strategy)
 
 **Core classes:**
 
-- `Entity` — `simple_NER/annotations.py` — result dataclass
-- `SimpleNER` — `simple_NER/simple_ner.py` — keyword/example NER
-- `NERWrapper` — `simple_NER/pipeline.py` — wraps a callable as an annotator
-- `NERPipeline` — `simple_NER/pipeline.py` — aggregates annotators, applies dedup
-- `AsyncNERPipeline` — `simple_NER/async_pipeline.py` — async variant of NERPipeline
-- `BaseAnnotator` — `simple_NER/annotators/base.py` — base class for all annotators
+- `Entity` (`simple_NER/annotations.py`): result dataclass
+- `SimpleNER` (`simple_NER/simple_ner.py`): keyword/example NER
+- `NERWrapper` (`simple_NER/pipeline.py`): wraps a callable as an annotator
+- `NERPipeline` (`simple_NER/pipeline.py`): aggregates annotators, applies dedup
+- `AsyncNERPipeline` (`simple_NER/async_pipeline.py`): async variant of NERPipeline
+- `BaseAnnotator` (`simple_NER/annotators/base.py`): base class for all annotators
 
 ---
 
 ## Entity
 
-`Entity` — `simple_NER/annotations.py`
+`Entity` (`simple_NER/annotations.py`)
 
 | Field | Type | Description |
 |:---|:---|:---|
 | `value` | str | Extracted text span |
 | `entity_type` | str | Label (e.g. `"email"`, `"phone"`, `"Location"`) |
 | `source_text` | str | Full input text |
-| `confidence` | float | 0.0–1.0 |
+| `confidence` | float | 0.0-1.0 |
 | `spans` | list[tuple[int,int]] | Character span(s) |
+
+| Field | Type | Description |
+|:---|:---|:---|
 | `indexes` | list[int] | Token indexes |
 | `data` | dict | Annotator-specific metadata |
 | `rules` | list | Rules that fired |
 
-`Entity.as_json()` — returns a JSON-serializable dict of all fields.
+`Entity.as_json()`: returns a JSON-serializable dict of all fields.
 
 ---
 
 ## SimpleNER
 
-`SimpleNER` — `simple_NER/simple_ner.py`
+`SimpleNER` (`simple_NER/simple_ner.py`)
 
 Keyword and example-based NER. Uses ahocorasick-ner for efficient multi-pattern matching.
 
@@ -89,7 +94,7 @@ print(ner.in_place_annotation("a red car"))   # a {red:color} car
 
 ## NERWrapper
 
-`NERWrapper` — `simple_NER/pipeline.py`
+`NERWrapper` (`simple_NER/pipeline.py`)
 
 Wraps any callable `(text: str) -> Iterable[Entity]` as an annotator for use in a pipeline.
 
@@ -114,7 +119,7 @@ wrapper = NERWrapper(my_detector)
 
 ## NERPipeline
 
-`NERPipeline` — `simple_NER/pipeline.py`
+`NERPipeline` (`simple_NER/pipeline.py`)
 
 Aggregates multiple annotators and applies a dedup strategy to resolve overlapping spans.
 
@@ -165,7 +170,7 @@ pipe = create_pipeline(
 
 ## AsyncNERPipeline
 
-`AsyncNERPipeline` — `simple_NER/async_pipeline.py`
+`AsyncNERPipeline` (`simple_NER/async_pipeline.py`)
 
 Async-capable pipeline for concurrent batch processing.
 
@@ -216,7 +221,7 @@ ann = EmailAnnotator()
 
 Factory key: `names`
 
-Heuristic person-name detection using stopwords and capitalization. Confidence 0.65–0.8.
+Heuristic person-name detection using stopwords and capitalization. Confidence 0.65-0.8.
 `entity_type="Noun"`. English / Latin script only.
 
 ---
@@ -350,17 +355,17 @@ Annotators load language-specific patterns from `simple_NER/locale/<lang>/`.
 
 | Extension | Content | Loader function |
 |:---|:---|:---|
-| `.rx` | One raw regex per line | `load_rx(name, lang)` — `simple_NER/utils.py` |
-| `.intent` | NL templates `{variable}` → named capture group | `load_intents(name, lang)` — `simple_NER/utils.py` |
-| `.txt` | Plain wordlist, one entry per line | `load_wordlist(name, lang)` — `simple_NER/utils.py` |
+| `.rx` | One raw regex per line | `load_rx(name, lang)` (`simple_NER/utils.py`) |
+| `.intent` | NL templates `{variable}` → named capture group | `load_intents(name, lang)` (`simple_NER/utils.py`) |
+| `.txt` | Plain wordlist, one entry per line | `load_wordlist(name, lang)` (`simple_NER/utils.py`) |
 
 All loaders fall back to `en-us` when no language file is found.
 
-`intent_to_regex("{amount} dollars")` → `re.compile(r"(?P<amount>.+?)\ dollars")` — `simple_NER/utils.py`
+`intent_to_regex("{amount} dollars")` → `re.compile(r"(?P<amount>.+?)\ dollars")` (`simple_NER/utils.py`)
 
-**Convenience wrappers inside `BaseAnnotator`** — `simple_NER/annotators/base.py`:
-- `self._load_rx(name)` — calls `load_rx(name, self.lang)`
-- `self._load_intents(name)` — calls `load_intents(name, self.lang)`
+**Convenience wrappers inside `BaseAnnotator`**: `simple_NER/annotators/base.py`:
+- `self._load_rx(name)`: calls `load_rx(name, self.lang)`
+- `self._load_intents(name)`: calls `load_intents(name, self.lang)`
 
 **Existing locale data:**
 - `en-us`: phone, email, url, hashtag, currency, organization, date_months
@@ -377,7 +382,7 @@ All loaders fall back to `en-us` when no language file is found.
 
 ## Extending simple_NER
 
-Subclass `BaseAnnotator` — `simple_NER/annotators/base.py`:
+Subclass `BaseAnnotator` (`simple_NER/annotators/base.py`):
 
 ```python
 from simple_NER.annotators.base import BaseAnnotator
@@ -421,7 +426,7 @@ or use `NERWrapper` to wrap a plain callable.
 
 ## OVOS Plugin
 
-Class: `SimpleNERIntentTransformer` — `simple_NER/opm.py`
+Class: `SimpleNERIntentTransformer` (`simple_NER/opm.py`)
 Entry-point group: `opm.transformer.intent`, key: `simple-ner-transformer`, priority 50.
 
 Config keys in `mycroft.conf`:
@@ -439,7 +444,7 @@ The transformer runs the pipeline on every utterance and injects recognized enti
 
 ## AhocorasickAnnotatorWrapper
 
-`AhocorasickAnnotatorWrapper` — `simple_NER/annotators/ahocorasick_wrapper.py`
+`AhocorasickAnnotatorWrapper` (`simple_NER/annotators/ahocorasick_wrapper.py`)
 
 Adapts any `AhocorasickNER` instance (or subclass) as a `BaseAnnotator` for use in a `NERPipeline`. Accepts custom vocabularies built with `add_word` / `fit`, and the pre-built dataset loaders from `ahocorasick_ner.datasets` (e.g. `ImdbNER`, `MusicNER`, `EncyclopediaMetallvmNER`).
 
@@ -448,7 +453,7 @@ from ahocorasick_ner import AhocorasickNER
 from simple_NER.annotators.ahocorasick_wrapper import AhocorasickAnnotatorWrapper
 from simple_NER.pipeline import NERPipeline
 
-# Custom vocabulary — use min_word_len=1 for short terms
+# Custom vocabulary: use min_word_len=1 for short terms
 ner = AhocorasickNER()
 ner.add_word("color", "red")
 ner.add_word("color", "blue")
@@ -465,7 +470,7 @@ for entity in pipeline.process("the sky is blue"):
 
 | Parameter | Type | Default | Description |
 |:---|:---|:---|:---|
-| `ahocorasick_ner` | `AhocorasickNER` | — | Wrapped instance |
+| `ahocorasick_ner` | `AhocorasickNER` |: | Wrapped instance |
 | `lang` | str | `"en-us"` | Language code (API consistency) |
 | `confidence` | float | `0.9` | Default confidence for all entities |
 | `min_word_len` | int | `5` | Minimum match length forwarded to `AhocorasickNER.tag()`. Use `1` for short-term wordlists. |
@@ -481,9 +486,12 @@ wrapper = AhocorasickAnnotatorWrapper(ImdbNER())
 
 ## Links
 
-- [docs/TUTORIALS.md](TUTORIALS.md) — Step-by-step guides
-- [docs/API.md](API.md) — Class and method reference
-- [docs/FAQ.md](FAQ.md) — Common questions
-- [docs/DATASET_INTEGRATION.md](DATASET_INTEGRATION.md) — HuggingFace dataset usage (new!)
-- [examples/README.md](../examples/README.md) — Runnable examples
-- [GitHub](https://github.com/OpenJarbas/simple_NER)
+- [docs/TUTORIALS.md](TUTORIALS.md): Step-by-step guides
+- [docs/API.md](API.md): Class and method reference
+- [docs/FAQ.md](FAQ.md): Common questions
+- [docs/DATASET_INTEGRATION.md](DATASET_INTEGRATION.md): HuggingFace dataset usage (new!)
+
+- [examples/README.md](../examples/README.md): Runnable examples
+- [GitHub](https://github.com/TigreGotico/simple_NER)
+---
+[← API Reference](API.md) · [Home](README.md) · [Tutorials →](TUTORIALS.md)

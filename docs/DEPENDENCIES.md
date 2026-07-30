@@ -60,3 +60,6 @@ pip install simple_NER[dev]
 | simple_NER + dev | 9 | ~15 MB |
 | spaCy | 10+ | ~50 MB |
 | NLTK + models | 5+ | ~100 MB |
+
+---
+[← Tutorials](TUTORIALS.md) · [Home](README.md) · [Installation →](INSTALLATION.md)

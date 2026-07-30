@@ -23,7 +23,7 @@ pip install simple_NER
 ### From Source
 
 ```bash
-git clone https://github.com/OpenJarbas/simple_NER.git
+git clone https://github.com/TigreGotico/simple_NER.git
 cd simple_NER
 pip install -e .
 ```
@@ -92,7 +92,7 @@ pip install ovos-date-parser ovos-number-parser quantulum3
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/OpenJarbas/simple_NER.git
+git clone https://github.com/TigreGotico/simple_NER.git
 cd simple_NER
 ```
 
@@ -416,6 +416,9 @@ After installation:
 
 ## Getting Help
 
-- **Documentation:** https://github.com/OpenJarbas/simple_NER/tree/main/docs
-- **Issues:** https://github.com/OpenJarbas/simple_NER/issues
-- **Discussions:** https://github.com/OpenJarbas/simple_NER/discussions
+- **Documentation:** [docs/](https://github.com/TigreGotico/simple_NER/tree/main/docs)
+- **Issues:** [report a bug or request a feature](https://github.com/TigreGotico/simple_NER/issues)
+- **Discussions:** [ask a question](https://github.com/TigreGotico/simple_NER/discussions)
+
+---
+[← Dependencies](DEPENDENCIES.md) · [Home](README.md) · [Migration →](MIGRATION.md)

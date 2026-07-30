@@ -1,6 +1,6 @@
 # Getting Started with simple_NER
 
-Welcome! This guide walks you through installing, running, and using simple_NER for the first time.
+This guide walks you through installing, running, and using simple_NER for the first time.
 
 ## Installation
 
@@ -22,7 +22,7 @@ pip install "simple_NER[dev]"
 
 ## Your First NER Pipeline
 
-Here's the simplest example — extract email, phone, and dates from text:
+Here's the simplest example: extract email, phone, and dates from text:
 
 ```python
 from simple_NER import create_pipeline
@@ -51,8 +51,9 @@ Each `Entity` contains:
 
 - **value**: The extracted text
 - **entity_type**: The label (e.g., `"email"`, `"phone"`)
-- **confidence**: 0.0–1.0 (higher = more certain)
+- **confidence**: 0.0-1.0 (higher = more certain)
 - **data**: Extra metadata specific to that entity type (e.g., for email: `local_part`, `domain`)
+
 - **spans**: Character positions in the original text
 
 ```python
@@ -70,10 +71,13 @@ for entity in pipe.process(text):
 | `temporal` | Dates, times, durations | 2025-06-01, in 3 days |
 | `numbers` | Numeric and written numbers | 42, seventy-three |
 | `currency` | Money amounts | $99.99, 100 EUR |
+
+| Type | What it finds | Example |
+|:---|:---|:---|
 | `locations` | Countries, cities, capitals | New York, France |
 | `names` | Person names | John Smith, Mary Johnson |
 | `organization` | Company names | Apple Inc, Google LLC |
-| `url` | HTTP/HTTPS URLs | https://example.com |
+| `url` | HTTP/HTTPS URLs | `https://example.com` |
 | `hashtag` | #hashtags | #python, #NLP |
 
 **See all 16 annotators:** [docs/index.md#all-annotators](index.md#all-annotators)
@@ -148,7 +152,7 @@ asyncio.run(process_batch())
 
 ## Multi-Language Support
 
-Pass `lang` to the pipeline — it forwards to all annotators that support it:
+Pass `lang` to the pipeline: it forwards to all annotators that support it:
 
 ```python
 # German date and number parsing
@@ -162,8 +166,8 @@ for entity in pipe.process("Das Datum ist 15.03.2025 und der Betrag ist 99,99 EU
 ```
 
 **Languages supported per annotator:**
-- `temporal`, `numbers`, `date`, `currency`, `organization` — see `docs/FAQ.md#Q-What-languages-are-supported` for details
-- `locations`, `email`, `phone`, `url`, `hashtag` — language-agnostic
+- `temporal`, `numbers`, `date`, `currency`, `organization`: see `docs/FAQ.md#Q-What-languages-are-supported` for details
+- `locations`, `email`, `phone`, `url`, `hashtag`: language-agnostic
 
 ## Custom Entity Types
 
@@ -195,11 +199,11 @@ for entity in ner.extract_entities("the ball is bright red"):
 
 ## Next Steps
 
-- **Deep dive:** [docs/index.md](index.md) — complete API reference
-- **Tutorials:** [docs/TUTORIALS.md](TUTORIALS.md) — step-by-step guides
-- **Examples:** [examples/README.md](../examples/README.md) — 15+ runnable scripts
-- **FAQ:** [docs/FAQ.md](FAQ.md) — common questions answered
-- **API Reference:** [docs/API.md](API.md) — class and method details
+- **Deep dive:** [docs/index.md](index.md): complete API reference
+- **Tutorials:** [docs/TUTORIALS.md](TUTORIALS.md): step-by-step guides
+- **Examples:** [examples/README.md](../examples/README.md): 15+ runnable scripts
+- **FAQ:** [docs/FAQ.md](FAQ.md): common questions answered
+- **API Reference:** [docs/API.md](API.md): class and method details
 
 ## Troubleshooting
 
@@ -225,4 +229,7 @@ Use the **async pipeline** (see [Async Processing](#async-processing-batch-mode)
 - **Questions?** Check [docs/FAQ.md](FAQ.md)
 - **API details?** See [docs/API.md](API.md)
 - **Working examples?** Browse [examples/README.md](../examples/README.md)
-- **Found a bug?** Open an issue on [GitHub](https://github.com/OpenJarbas/simple_NER/issues)
+- **Found a bug?** Open an issue on [GitHub](https://github.com/TigreGotico/simple_NER/issues)
+
+---
+[Home](README.md) · [FAQ →](FAQ.md)
