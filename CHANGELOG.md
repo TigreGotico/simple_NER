@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.1a3](https://github.com/TigreGotico/simple_NER/tree/0.9.1a3) (2026-07-30)
+
+[Full Changelog](https://github.com/TigreGotico/simple_NER/compare/0.9.1a2...0.9.1a3)
+
+**Merged pull requests:**
+
+- docs: rewrite README in Simplified Technical English [\#16](https://github.com/TigreGotico/simple_NER/pull/16) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.9.1a2](https://github.com/TigreGotico/simple_NER/tree/0.9.1a2) (2026-04-01)
 
 [Full Changelog](https://github.com/TigreGotico/simple_NER/compare/0.9.1a1...0.9.1a2)
