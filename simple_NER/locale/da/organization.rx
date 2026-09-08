@@ -1,1 +1,3 @@
 \b[A-ZÆØÅ][A-Za-zæøå\s\-&']+(?:A/S|ApS|I/S|K/S|P/S|IVS)\b
+[A-ZÆØÅ][A-Za-zæøåé\-]+(?:\s+[A-ZÆØÅ][A-Za-zæøåé\-]+)*\s+(?:Universitet|Universitetet|Institut|Institutet|Akademi|Højskole|Handelshøjskole)\b
+[A-ZÆØÅ][A-Za-zæøå\-]+(?:\s+[A-ZÆØÅ][A-Za-zæøå\-]+)*\s+(?:Hospital|Hospitalet|Sygehus|Sygehuset|Klinik|Klinikken)\b
