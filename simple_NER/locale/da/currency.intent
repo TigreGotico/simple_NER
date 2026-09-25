@@ -5,4 +5,6 @@
 {amount} dollar
 {amount} pund
 {amount} yen
+{amount} yuan
 {amount} bitcoin
+{amount} btc
