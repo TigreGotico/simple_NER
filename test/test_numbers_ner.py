@@ -315,6 +315,9 @@ class TestEachNumberIsOneEntity(unittest.TestCase):
     def test_pt_article_is_no_number(self):
         self._assert_numbers("comprei uma casa e duas bicicletas", "pt-pt", [("duas", "2")])
 
+    def test_pt_article_before_an_ordinal_homograph(self):
+        self._assert_numbers("dá-me um segundo facto", "pt-pt", [("segundo", "2")])
+
     def test_pt_ordinal(self):
         self._assert_numbers("o vigésimo primeiro andar", "pt-pt", [("vigésimo primeiro", "21")])
 

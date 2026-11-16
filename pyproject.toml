@@ -30,7 +30,7 @@ dependencies = [
     "quebra_frases>=0.3.7",
     "ovos-date-parser",
     "ovos-number-parser",
-    "numtag>=0.7.1a1",
+    "numtag>=0.9.0a1",
     "stopwordsiso>=0.6.1",
     "ahocorasick-ner>=0.1.1",
     "setuptools>=82.0.1",

@@ -7,8 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 
-from numtag import Form, Kind, Scale, tag_numbers
-from numtag.tagger import ARTICLE_CONFIDENCE
+from numtag import Form, Kind, Reason, Scale, tag_numbers
 
 from simple_NER import Entity
 from simple_NER.annotators.base import BaseAnnotator
@@ -94,7 +93,7 @@ class NumberNER(BaseAnnotator):
             return
 
         for mention in mentions:
-            if mention.form is Form.DIGITS or mention.confidence <= ARTICLE_CONFIDENCE:
+            if mention.form is Form.DIGITS or Reason.ARTICLE in mention.reasons:
                 continue
             if mention.kind is Kind.ORDINAL and not self.ordinals:
                 continue
