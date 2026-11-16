@@ -277,7 +277,7 @@ from simple_NER.annotators.numbers_ner import NumberNER
 
 ner = NumberNER(ordinals=True, short_scale=True)
 for ent in ner.extract_entities("three hundred apples"):
-    print(ent.value, ent.data["number"])  # "three hundred", "300.0"
+    print(ent.value, ent.data["number"])  # "three hundred", "300"
 ```
 
 **Parameters:**
@@ -286,7 +286,7 @@ for ent in ner.extract_entities("three hundred apples"):
 - `short_scale` (bool): US (short) vs UK (long) scale
 - `case_sensitive` (bool): Case-sensitive matching
 
-**Note:** Requires `ovos-number-parser` or `lingua_nostra`.
+**Note:** Reads numbers with `numtag`. `data["number"]` is a canonical digit string ("300", "2.5", "1/3"). A number written only in digits is not a written number.
 
 ---
 

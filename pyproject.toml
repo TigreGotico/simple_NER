@@ -10,7 +10,7 @@ license = { text = "MIT" }
 authors = [{ name = "jarbasAI", email = "jarbasai@mailfence.com" }]
 maintainers = [{ name = "TigreGotico", email = "jarbasai@mailfence.com" }]
 readme = "readme.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 keywords = ["NER", "named-entity-recognition", "NLP", "rule-based", "regex", "entity-extraction"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -18,7 +18,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -31,6 +30,7 @@ dependencies = [
     "quebra_frases>=0.3.7",
     "ovos-date-parser",
     "ovos-number-parser",
+    "numtag>=0.9.0a1",
     "stopwordsiso>=0.6.1",
     "ahocorasick-ner>=0.1.1",
     "setuptools>=82.0.1",
@@ -70,7 +70,7 @@ include = ["simple_NER*"]
 "*" = ["*.voc", "*.json", "*.txt"]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 88
 lint.select = [
     "E",   # pycodestyle errors
@@ -88,7 +88,7 @@ lint.ignore = ["E501"]
 known-first-party = ["simple_NER"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false

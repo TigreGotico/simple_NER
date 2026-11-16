@@ -24,7 +24,7 @@
 
 | Annotator | Language coverage |
 |-----------|-------------------|
-| `TemporalNER`, `NumberNER` | Multi-language via `ovos-date-parser` / `ovos-number-parser`, pass `lang="de-de"` or similar |
+| `TemporalNER`, `NumberNER` | Multi-language via `ovos-date-parser` / `numtag`, pass `lang="de-de"` or similar |
 | `DateAnnotator` | Written month names in EN/ES/FR/DE/PT/IT/NL, numeric formats are language-agnostic |
 | `CurrencyAnnotator` | Currency words in EN/ES/FR/DE/PT/IT/NL, symbols/ISO codes are language-agnostic |
 | `OrganizationAnnotator` | Company suffixes for DE/FR/ES/PT/IT/NL/BE and English, accented Latin characters in the name regex |
@@ -65,7 +65,7 @@ pip install simple_NER
 
 ### "ovos-date-parser not found" warning
 
-`TemporalNER` and `NumberNER` degrade gracefully but datetime/number extraction won't work.
+`TemporalNER` degrades gracefully but datetime extraction won't work.
 
 ```bash
 pip install ovos-date-parser ovos-number-parser

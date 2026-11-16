@@ -25,26 +25,11 @@ def _entities(text: str, **kwargs) -> list:
 
 
 # ---------------------------------------------------------------------------
-# Basic availability guard
-# ---------------------------------------------------------------------------
-
-try:
-    from ovos_number_parser import numbers_to_digits as _ntest  # noqa: F401
-    _OVOS_AVAILABLE = True
-except ImportError:
-    try:
-        from ovos_number_parser import convert_words_to_numbers as _ntest  # noqa: F401
-        _OVOS_AVAILABLE = True
-    except ImportError:
-        _OVOS_AVAILABLE = False
-
-
-# ---------------------------------------------------------------------------
 # Import-level behaviour
 # ---------------------------------------------------------------------------
 
 class TestImport(unittest.TestCase):
-    """Module imports correctly regardless of whether ovos-number-parser is present."""
+    """Module imports correctly."""
 
     def test_module_importable(self):
         from simple_NER.annotators import numbers_ner  # noqa: F401
@@ -52,11 +37,6 @@ class TestImport(unittest.TestCase):
     def test_number_ner_class_exists(self):
         from simple_NER.annotators.numbers_ner import NumberNER
         self.assertTrue(callable(NumberNER))
-
-    def test_ovos_flag_is_bool(self):
-        from simple_NER.annotators import numbers_ner
-        self.assertIsInstance(numbers_ner._OVOS_AVAILABLE, bool)
-
 
 # ---------------------------------------------------------------------------
 # Constructor & attributes
@@ -98,47 +78,9 @@ class TestConstructor(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# When ovos-number-parser is NOT available
+# Live tests
 # ---------------------------------------------------------------------------
 
-class TestNoOvosParser(unittest.TestCase):
-    """NumberNER must be a no-op when the parser is missing."""
-
-    def test_no_results_when_unavailable(self):
-        import simple_NER.annotators.numbers_ner as mod
-        original = mod._OVOS_AVAILABLE
-        original_fn = mod._convert_numbers
-        try:
-            mod._OVOS_AVAILABLE = False
-            mod._convert_numbers = None
-            ner = _make_ner()
-            results = list(ner.annotate("I have three cats"))
-            self.assertEqual(results, [])
-        finally:
-            mod._OVOS_AVAILABLE = original
-            mod._convert_numbers = original_fn
-
-    def test_annotate_returns_generator_when_unavailable(self):
-        import simple_NER.annotators.numbers_ner as mod
-        import types
-        original = mod._OVOS_AVAILABLE
-        original_fn = mod._convert_numbers
-        try:
-            mod._OVOS_AVAILABLE = False
-            mod._convert_numbers = None
-            ner = _make_ner()
-            result = ner.annotate("three hundred")
-            self.assertIsInstance(result, types.GeneratorType)
-        finally:
-            mod._OVOS_AVAILABLE = original
-            mod._convert_numbers = original_fn
-
-
-# ---------------------------------------------------------------------------
-# Live tests (only run if ovos-number-parser is installed)
-# ---------------------------------------------------------------------------
-
-@unittest.skipUnless(_OVOS_AVAILABLE, "ovos-number-parser not installed")
 class TestLiveExtraction(unittest.TestCase):
     """Tests that actually call the parser."""
 
@@ -285,66 +227,17 @@ class TestLiveExtraction(unittest.TestCase):
 
     def test_exception_in_parser_is_caught(self):
         import simple_NER.annotators.numbers_ner as mod
-        original_fn = mod._convert_numbers
-        try:
-            mod._convert_numbers = MagicMock(side_effect=RuntimeError("boom"))
+        with patch.object(mod, "tag_numbers", MagicMock(side_effect=RuntimeError("boom"))):
             ner = _make_ner()
             # Should not propagate the exception
             results = list(ner.extract_entities("three cats"))
-            self.assertEqual(results, [])
-        finally:
-            mod._convert_numbers = original_fn
-
-
-# ---------------------------------------------------------------------------
-# _find_replacements helper (pure-Python, no parser needed)
-# ---------------------------------------------------------------------------
-
-class TestFindReplacements(unittest.TestCase):
-    """Unit tests for the _find_replacements character-diff helper."""
-
-    def _fn(self, original: str, converted: str):
-        from simple_NER.annotators.numbers_ner import _find_replacements
-        return _find_replacements(original, converted)
-
-    def test_simple_replacement(self):
-        original = "three cats"
-        converted = "3 cats"
-        results = self._fn(original, converted)
-        self.assertEqual(len(results), 1)
-        start, end, new_val = results[0]
-        self.assertEqual(original[start:end], "three")
-        self.assertEqual(new_val, "3")
-
-    def test_no_change(self):
-        results = self._fn("hello world", "hello world")
         self.assertEqual(results, [])
-
-    def test_compound_number(self):
-        original = "three hundred cats"
-        converted = "300 cats"
-        results = self._fn(original, converted)
-        self.assertEqual(len(results), 1)
-        start, end, new_val = results[0]
-        self.assertEqual(original[start:end], "three hundred")
-        self.assertEqual(new_val, "300")
-
-    def test_multiple_numbers(self):
-        original = "two cats and five dogs"
-        converted = "2 cats and 5 dogs"
-        results = self._fn(original, converted)
-        new_vals = [nv for _, _, nv in results]
-        self.assertIn("2", new_vals)
-        self.assertIn("5", new_vals)
-        for start, end, nv in results:
-            self.assertEqual(original[start:end], {"2": "two", "5": "five"}[nv])
 
 
 # ---------------------------------------------------------------------------
 # start/end offsets in entity data (live tests)
 # ---------------------------------------------------------------------------
 
-@unittest.skipUnless(_OVOS_AVAILABLE, "ovos-number-parser not installed")
 class TestStartEndOffsets(unittest.TestCase):
     """Verify entity.data["start"] and entity.data["end"] character offsets."""
 
@@ -390,13 +283,60 @@ class TestStartEndOffsets(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
+# One entity per number, with its own span and value
+# ---------------------------------------------------------------------------
+
+class TestEachNumberIsOneEntity(unittest.TestCase):
+    """Gold spans come from str.index on the text, values from the words."""
+
+    def _assert_numbers(self, text, lang, expected, **kwargs):
+        gold, start = [], 0
+        for surface, number in expected:
+            start = text.index(surface, start)
+            gold.append((surface, number, start, start + len(surface)))
+            start += len(surface)
+        found = [(e.value, e.data["number"], e.data["start"], e.data["end"])
+                 for e in _entities(text, lang=lang, **kwargs)]
+        self.assertEqual(found, gold)
+
+    def test_en_ordinal_is_one_number(self):
+        self._assert_numbers("the twenty first floor", "en-us", [("twenty first", "21")])
+
+    def test_en_ordinal_is_left_out_without_ordinals(self):
+        self._assert_numbers("the twenty first floor", "en-us", [], ordinals=False)
+
+    def test_en_fraction(self):
+        self._assert_numbers("a third of the cake", "en-us", [("a third", "1/3")])
+
+    def test_pt_two_adjacent_numbers_stay_apart(self):
+        self._assert_numbers("vinte e um e vinte", "pt-pt",
+                             [("vinte e um", "21"), ("vinte", "20")])
+
+    def test_pt_article_is_no_number(self):
+        self._assert_numbers("comprei uma casa e duas bicicletas", "pt-pt", [("duas", "2")])
+
+    def test_pt_article_before_an_ordinal_homograph(self):
+        self._assert_numbers("dá-me um segundo facto", "pt-pt", [("segundo", "2")])
+
+    def test_pt_ordinal(self):
+        self._assert_numbers("o vigésimo primeiro andar", "pt-pt", [("vigésimo primeiro", "21")])
+
+    def test_es_two_adjacent_numbers_stay_apart(self):
+        self._assert_numbers("veintiuno y veinte", "es-es",
+                             [("veintiuno", "21"), ("veinte", "20")])
+
+    def test_fr_two_adjacent_numbers_stay_apart(self):
+        self._assert_numbers("vingt et un et vingt", "fr-fr",
+                             [("vingt et un", "21"), ("vingt", "20")])
+
+
+# ---------------------------------------------------------------------------
 # __main__ block smoke-test (no crash, no output checked)
 # ---------------------------------------------------------------------------
 
 class TestMainBlock(unittest.TestCase):
     """The __main__ block must not crash when imported via runpy."""
 
-    @unittest.skipUnless(_OVOS_AVAILABLE, "ovos-number-parser not installed")
     def test_main_block_runs(self):
         import runpy
         import io
