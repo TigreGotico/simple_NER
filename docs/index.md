@@ -267,7 +267,7 @@ from simple_NER.annotators.numbers import NumberNER
 ann = NumberNER(lang="en-us")
 ```
 
-`data` fields: `number` (str, digit form), `start`, `end`
+`data` fields: `number` (str, canonical digit string from numtag: "300", "2.5", "1/3"), `start`, `end`
 
 ---
 
