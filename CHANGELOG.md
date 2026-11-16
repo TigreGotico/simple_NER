@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.2a1](https://github.com/TigreGotico/simple_NER/tree/0.9.2a1) (2026-11-16)
+
+[Full Changelog](https://github.com/TigreGotico/simple_NER/compare/0.9.1a3...0.9.2a1)
+
+**Merged pull requests:**
+
+- fix: read written numbers with numtag spans [\#25](https://github.com/TigreGotico/simple_NER/pull/25) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- translate\(da\): currency parity + organization.rx categories [\#18](https://github.com/TigreGotico/simple_NER/pull/18) ([andlo](https://github.com/andlo))
+
 ## [0.9.1a3](https://github.com/TigreGotico/simple_NER/tree/0.9.1a3) (2026-07-30)
 
 [Full Changelog](https://github.com/TigreGotico/simple_NER/compare/0.9.1a2...0.9.1a3)
