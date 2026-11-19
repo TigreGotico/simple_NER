@@ -254,7 +254,7 @@ from datetime import datetime
 ann = TemporalNER(lang="en-us", anchor_date=datetime(2025, 1, 1))
 ```
 
-Uses `ovos-date-parser` internally.
+Uses `chronologia` internally.
 
 ---
 

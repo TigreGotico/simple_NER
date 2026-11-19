@@ -264,7 +264,7 @@ for ent in ner.extract_entities("wait 5 minutes"):
 - `extract_datetime` (bool): Enable datetime extraction
 - `extract_duration` (bool): Enable duration extraction
 
-**Note:** Requires `ovos-date-parser` or `lingua_nostra`.
+**Note:** Reads dates and durations with `chronologia`.
 
 ---
 

@@ -77,13 +77,12 @@ This installs:
 
 ### Recommended Backends
 
-For best performance with datetime and number extraction:
+For quantity extraction:
 
 ```bash
-pip install ovos-date-parser ovos-number-parser quantulum3
+pip install quantulum3
 ```
 
-**Note:** `lingua_nostra` is deprecated. Use OVOS packages instead.
 
 ---
 
@@ -303,16 +302,14 @@ pip install --upgrade pip
 pip install simple_NER[all]
 ```
 
-### Issue: ovos-date-parser Not Available
+### Issue: chronologia Not Available
 
-If `ovos-date-parser` is not available, the library falls back to `lingua_nostra`:
+Install it, or use TemporalNER without datetime extraction:
 
 ```bash
-# Install fallback
-pip install lingua_nostra
+pip install chronologia
 ```
 
-Or use TemporalNER without datetime extraction:
 
 ```python
 from simple_NER.annotators.temporal_ner import TemporalNER
@@ -377,7 +374,7 @@ pip uninstall simple_NER
 pip install simple_NER
 
 # Install recommended backends
-pip install ovos-date-parser ovos-number-parser
+pip install chronologia numtag
 ```
 
 **Note:** v0.9.x is backward compatible. All old APIs still work.
