@@ -121,7 +121,6 @@ class TestTemporalNER:
     def test_temporal_datetime(self):
         from simple_NER.annotators.temporal_ner import TemporalNER
 
-
         ner = TemporalNER(extract_duration=False)
         results = list(ner.extract_entities("meeting tomorrow"))
 
@@ -131,7 +130,6 @@ class TestTemporalNER:
     def test_temporal_duration(self):
         from simple_NER.annotators.temporal_ner import TemporalNER
 
-
         ner = TemporalNER(extract_datetime=False)
         results = list(ner.extract_entities("wait 5 minutes"))
 
@@ -140,7 +138,6 @@ class TestTemporalNER:
 
     def test_temporal_both(self):
         from simple_NER.annotators.temporal_ner import TemporalNER
-
 
         ner = TemporalNER()
         results = list(ner.extract_entities("meeting tomorrow for 2 hours"))

@@ -13,12 +13,13 @@ import re
 from collections.abc import Generator
 from datetime import datetime
 
+from chronologia import extract_duration, extract_timespan
+from ovos_date_parser import nice_date, nice_duration
+
 from simple_NER import Entity
 from simple_NER.annotators.base import BaseAnnotator
 from simple_NER.utils.diff import TextDiff
-
-from chronologia import extract_duration, extract_timespan
-from ovos_date_parser import nice_date, nice_duration
+from simple_NER.utils.log import LOG
 
 _ORDINAL_RE: re.Pattern[str] = re.compile(r'\d+(st|nd|rd|th)\b', re.IGNORECASE)
 
@@ -116,10 +117,13 @@ class TemporalNER(BaseAnnotator):
         Yields:
             Entity objects for datetime and/or duration expressions.
         """
-        if self._extract_datetime:
-            yield from self._extract_datetime_entities(text)
-        if self._extract_duration:
-            yield from self._extract_duration_entities(text)
+        try:
+            if self._extract_datetime:
+                yield from self._extract_datetime_entities(text)
+            if self._extract_duration:
+                yield from self._extract_duration_entities(text)
+        except NotImplementedError as e:
+            LOG.error(f"Error extracting dates and durations: {e}")
 
     def _extract_datetime_entities(
         self, text: str
@@ -183,16 +187,14 @@ class TemporalNER(BaseAnnotator):
         Yields:
             Entity objects for duration expressions.
         """
-        found = extract_duration(text, self.lang)
+        found = extract_duration(text, self.lang, self.anchor_date)
         if found:
             diff = TextDiff(text, found.remainder)
 
             for _tag, span1, _span2 in diff.dif_tags():
                 value = " ".join(text.split()[span1[0] : span1[1]])
 
-                # Skip spans that contain no temporal keyword — mirrors the
-                # guard in _extract_datetime_entities to prevent bare numbers
-                # (e.g. "$500" normalised to "500") matching as durations.
+                # Skip spans that contain no temporal keyword.
                 # Substring check (not exact-word) handles plural forms:
                 # "minutes" contains keyword "minute", "hours" contains "hour".
                 value_lower = value.lower()
@@ -205,7 +207,7 @@ class TemporalNER(BaseAnnotator):
                     continue
 
                 # Re-extract to get accurate duration for this specific value
-                duration_result = extract_duration(value, self.lang)
+                duration_result = extract_duration(value, self.lang, self.anchor_date)
                 if duration_result:
                     delta_result = duration_result.duration
                     data = {

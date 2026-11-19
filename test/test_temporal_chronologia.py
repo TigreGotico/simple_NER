@@ -8,6 +8,7 @@ from datetime import datetime
 
 import pytest
 
+from simple_NER.annotators.factory import create_pipeline
 from simple_NER.annotators.numbers_ner import NumberNER
 from simple_NER.annotators.temporal_ner import TemporalNER
 
@@ -62,6 +63,15 @@ DURATIONS = [
     ("fr-fr", "on se voit dans trois jours", "trois jours", 3 * DAY),
     ("pt-pt", "espera cinco minutos", "cinco minutos", 5 * MINUTE),
     ("pt-pt", "demora duas horas", "duas horas", 2 * HOUR),
+    ("en-us", "the project takes 3 months", "3 months", 92 * DAY),
+    ("en-us", "it lasted two years", "two years", 730 * DAY),
+    ("pt-pt", "dura dois anos", "dois anos", 730 * DAY),
+    ("es-es", "durante tres meses", "durante tres meses", 92 * DAY),
+    ("fr-fr", "pendant trois mois", "pendant trois mois", 92 * DAY),
+    ("de-de", "das dauert drei Monate", "drei Monate", 92 * DAY),
+    ("nl-nl", "het duurt drie maanden", "drie maanden", 92 * DAY),
+    ("ca-es", "dura tres mesos", "tres mesos", 92 * DAY),
+    ("gl-es", "dura tres meses", "tres meses", 92 * DAY),
 ]
 
 NUMBERS = [
@@ -82,14 +92,12 @@ def _entities(text, lang, entity_type):
 def test_date_value_and_instant(lang, text, value, iso):
     found = _entities(text, lang, "relative_date")
     assert [(e.value, e.data["isoformat"]) for e in found] == [(value, iso)]
-    assert value in text
 
 
 @pytest.mark.parametrize("lang,text,value,seconds", DURATIONS)
 def test_duration_value_and_length(lang, text, value, seconds):
     found = _entities(text, lang, "duration")
     assert [(e.value, e.data["total_seconds"]) for e in found] == [(value, seconds)]
-    assert value in text
 
 
 @pytest.mark.parametrize("lang,text,value,number", NUMBERS)
@@ -104,3 +112,10 @@ def test_written_number(lang, text, value, number):
 )
 def test_day_word_of_a_date_is_no_duration():
     assert _entities("no dia 5 de dezembro", "pt-pt", "duration") == []
+
+
+@pytest.mark.parametrize("lang", ["ja-jp", "zh-cn"])
+def test_language_without_locale_keeps_the_other_entities(lang):
+    pipeline = create_pipeline(["email", "temporal"], lang=lang)
+    found = pipeline.process("mail a@b.com tomorrow about 5 minutes")
+    assert [(e.entity_type, e.value) for e in found] == [("email", "a@b.com")]

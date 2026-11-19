@@ -127,7 +127,7 @@ entities = pipeline.process(text)  # Automatic deduplication
 
 ### 5. Optional Dependencies
 
-Some annotators now support multiple backends:
+Two annotators read with a dedicated package:
 
 **TemporalNER:** reads dates and durations with `chronologia`.
 

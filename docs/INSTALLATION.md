@@ -83,7 +83,6 @@ For quantity extraction:
 pip install quantulum3
 ```
 
-
 ---
 
 ## Development Setup
@@ -304,17 +303,10 @@ pip install simple_NER[all]
 
 ### Issue: chronologia Not Available
 
-Install it, or use TemporalNER without datetime extraction:
+`TemporalNER` reads both dates and durations with chronologia, so it needs the package even with `extract_datetime=False`:
 
 ```bash
 pip install chronologia
-```
-
-
-```python
-from simple_NER.annotators.temporal_ner import TemporalNER
-
-ner = TemporalNER(extract_datetime=False, extract_duration=True)
 ```
 
 ### Issue: quantulum3 Installation Fails
