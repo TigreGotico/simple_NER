@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.2a2](https://github.com/TigreGotico/simple_NER/tree/0.9.2a2) (2026-11-19)
+
+[Full Changelog](https://github.com/TigreGotico/simple_NER/compare/0.9.2a1...0.9.2a2)
+
+**Merged pull requests:**
+
+- refactor: read dates and durations with chronologia, drop ovos-number-parser [\#27](https://github.com/TigreGotico/simple_NER/pull/27) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.9.2a1](https://github.com/TigreGotico/simple_NER/tree/0.9.2a1) (2026-11-16)
 
 [Full Changelog](https://github.com/TigreGotico/simple_NER/compare/0.9.1a3...0.9.2a1)
