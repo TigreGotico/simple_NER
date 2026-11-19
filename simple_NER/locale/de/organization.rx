@@ -1,0 +1,1 @@
+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+(?:\s+[A-Z\u00C0-\u024F][a-zA-Z\u00C0-\u024F\-]+)*\s+(?:GmbH|AG|KG|OHG|e\.V\.|GbR|UG)\b

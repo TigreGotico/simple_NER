@@ -1,0 +1,36 @@
+dnes
+zítra
+včera
+teď
+nyní
+toto ráno
+dnes večer
+dnes v noci
+pozítří
+předevčírem
+pondělí
+úterý
+středa
+čtvrtek
+pátek
+sobota
+neděle
+sekunda
+minuta
+hodina
+den
+týden
+měsíc
+rok
+desetiletí
+století
+brzy
+pozdě
+nedávno
+příští
+minulý
+před
+po
+během
+hned
+právě teď

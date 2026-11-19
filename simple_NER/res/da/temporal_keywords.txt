@@ -1,0 +1,35 @@
+i dag
+i morgen
+i går
+nu
+straks
+i morges
+i aften
+i nat
+i overmorgen
+i forgårs
+mandag
+tirsdag
+onsdag
+torsdag
+fredag
+lørdag
+søndag
+sekund
+minut
+time
+dag
+uge
+måned
+år
+årti
+århundrede
+snart
+sent
+for nylig
+næste
+forrige
+siden
+efter
+før
+under

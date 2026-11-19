@@ -1,0 +1,34 @@
+bugün
+yarın
+dün
+şimdi
+sabah
+öğleden sonra
+akşam
+gece
+öbür gün
+evvelsi gün
+pazartesi
+salı
+çarşamba
+perşembe
+cuma
+cumartesi
+pazar
+saniye
+dakika
+saat
+gün
+hafta
+ay
+yıl
+on yıl
+yüzyıl
+yakında
+geç
+son zamanlarda
+gelecek
+geçen
+önce
+sonra
+sırasında

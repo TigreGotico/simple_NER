@@ -1,0 +1,37 @@
+avui
+demà
+ahir
+ara
+aquest matí
+aquesta tarda
+aquesta nit
+dilluns
+dimarts
+dimecres
+dijous
+divendres
+dissabte
+diumenge
+segon
+minut
+hora
+dia
+setmana
+mes
+any
+dècada
+segle
+aviat
+tard
+recentment
+proper
+passat
+fa
+després
+abans
+durant
+ara mateix
+tot just
+ben aviat
+pròxim
+darrer

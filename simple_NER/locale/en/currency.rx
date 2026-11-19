@@ -1,0 +1,3 @@
+(?:R\$|A\$|C\$|[\$€£¥₹₽₩₺])\s*(?:\d{1,3}(?:[,\s]\d{3})*|\d+)(?:[.,]\d{1,2})?
+(?:\d{1,3}(?:[,\s]\d{3})*|\d+)(?:[.,]\d{1,2})?\s*(?:USD|EUR|GBP|JPY|INR|BRL|RUB|KRW|TRY|AUD|CAD)
+(?:USD|EUR|GBP|JPY|INR|BRL|RUB|KRW|TRY|AUD|CAD)\s+(?:\d{1,3}(?:[,\s]\d{3})*|\d+)(?:[.,]\d{1,2})?

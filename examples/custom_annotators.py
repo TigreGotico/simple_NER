@@ -1,11 +1,11 @@
-from simple_NER.annotators import NERWrapper
 from simple_NER import Entity
+from simple_NER.annotators import NERWrapper
 
 
 def extract_hitler(text):
-    if "hitler" in text.lower():
-        yield Entity("hitler", "bad_guy", source_text=text, data={
-            "known_for": ["killing jews", "world war 2"]})
+    if "hitler" in text.lower().split():
+        yield Entity("hitler", "bad_guy", source_text=text,
+                     data={"known_for": ["killing jews", "world war 2"]})
 
 
 ner = NERWrapper()
