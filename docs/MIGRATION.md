@@ -127,25 +127,13 @@ entities = pipeline.process(text)  # Automatic deduplication
 
 ### 5. Optional Dependencies
 
-Some annotators now support multiple backends:
+Two annotators read with a dedicated package:
 
-**TemporalNER:**
-- Primary: `ovos-date-parser`
-- Fallback: `lingua_nostra` (deprecated)
+**TemporalNER:** reads dates and durations with `chronologia`.
 
-**NumberNER:**
-- Primary: `ovos-number-parser`
-- Fallback: `lingua_nostra` (deprecated)
+**NumberNER:** reads written numbers with `numtag`.
 
-**Before:**
-```bash
-pip install lingua_nostra
-```
-
-**After (recommended):**
-```bash
-pip install ovos-date-parser ovos-number-parser
-```
+Both are core dependencies. `pip install simple_NER` installs them.
 
 ---
 
@@ -158,7 +146,7 @@ pip install ovos-date-parser ovos-number-parser
 pip install simple_NER[all,dev]
 
 # Or install specific backends
-pip install ovos-date-parser ovos-number-parser quantulum3
+pip install quantulum3
 ```
 
 ### Step 2: Update Imports
@@ -231,21 +219,11 @@ pipeline = NERPipeline(
 
 ## Common Issues
 
-### Issue 1: Missing ovos-date-parser
-
-**Error:**
-```
-WARNING - Neither ovos-date-parser nor lingua_nostra available
-```
+### Issue 1: Missing chronologia
 
 **Solution:**
 ```bash
-pip install ovos-date-parser ovos-number-parser
-```
-
-Or continue using lingua_nostra:
-```bash
-pip install lingua_nostra
+pip install chronologia numtag
 ```
 
 ---

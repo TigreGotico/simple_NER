@@ -119,10 +119,7 @@ class TestTemporalNER:
         assert TemporalNER is not None
 
     def test_temporal_datetime(self):
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_duration=False)
         results = list(ner.extract_entities("meeting tomorrow"))
@@ -131,10 +128,7 @@ class TestTemporalNER:
         assert any(r.entity_type == "relative_date" for r in results)
 
     def test_temporal_duration(self):
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_datetime=False)
         results = list(ner.extract_entities("wait 5 minutes"))
@@ -143,10 +137,7 @@ class TestTemporalNER:
         assert any(r.entity_type == "duration" for r in results)
 
     def test_temporal_both(self):
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER()
         results = list(ner.extract_entities("meeting tomorrow for 2 hours"))

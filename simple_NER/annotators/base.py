@@ -82,7 +82,7 @@ class BaseAnnotator(Annotator):
         Args:
             confidence: Default confidence score for extracted entities.
             lang: BCP-47 language tag (e.g. ``"de-de"``).  Subclasses that use
-                language-sensitive backends (ovos-date-parser, ovos-number-parser)
+                language-sensitive backends (chronologia, numtag)
                 forward this to their respective API calls.
         """
         self._confidence = confidence

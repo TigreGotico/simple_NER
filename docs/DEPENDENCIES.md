@@ -10,8 +10,9 @@ simple_NER is designed to be lightweight with minimal dependencies.
 dependencies = [
     "simplematch",              # Pattern matching (Padaos-like)
     "quebra_frases>=0.3.7",     # Text tokenization and span finding
-    "ovos-date-parser",         # Datetime extraction
-    "ovos-number-parser",       # Written number extraction
+    "chronologia",              # Datetime and duration extraction
+    "ovos-date-parser",         # Spoken forms of dates and durations
+    "numtag",                   # Written number extraction
 ]
 ```
 
@@ -36,8 +37,9 @@ Installs:
 simple_NER
 ├── simplematch (core)
 ├── quebra_frases (core)
-├── ovos-date-parser (core) → temporal_ner
-└── ovos-number-parser (core) → numbers_ner
+├── chronologia (core) → temporal_ner
+├── ovos-date-parser (core) → temporal_ner (spoken forms)
+└── numtag (core) → numbers_ner
 │
 └── [dev] pytest, ruff, mypy, pre-commit
 ```

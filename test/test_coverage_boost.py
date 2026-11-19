@@ -24,15 +24,6 @@ class TestTemporalNERCoverage:
     """Tests targeting uncovered branches in temporal_ner.py."""
 
     # ------------------------------------------------------------------
-    # Basic import / availability guard
-    # ------------------------------------------------------------------
-
-    def test_ovos_available_flag(self):
-        """_OVOS_AVAILABLE is a bool."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE
-        assert isinstance(_OVOS_AVAILABLE, bool)
-
-    # ------------------------------------------------------------------
     # _load_temporal_keywords — known and unknown lang
     # ------------------------------------------------------------------
 
@@ -74,30 +65,12 @@ class TestTemporalNERCoverage:
         assert ner.name == "temporal"
 
     # ------------------------------------------------------------------
-    # annotate() when _OVOS_AVAILABLE is False
-    # ------------------------------------------------------------------
-
-    def test_annotate_no_ovos_yields_nothing(self):
-        """annotate() returns immediately when _OVOS_AVAILABLE is False (line 144)."""
-        import simple_NER.annotators.temporal_ner as mod
-
-        original = mod._OVOS_AVAILABLE
-        try:
-            mod._OVOS_AVAILABLE = False
-            from simple_NER.annotators.temporal_ner import TemporalNER
-            ner = TemporalNER()
-            results = list(ner.annotate("tomorrow at noon"))
-            assert results == []
-        finally:
-            mod._OVOS_AVAILABLE = original
-
-    # ------------------------------------------------------------------
     # anchor_date parameter
     # ------------------------------------------------------------------
 
     def test_anchor_date_explicit(self):
         """anchor_date passed explicitly is stored as-is."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
+        from simple_NER.annotators.temporal_ner import TemporalNER
         anchor = datetime(2025, 6, 15, 12, 0, 0)
         ner = TemporalNER(anchor_date=anchor)
         assert ner.anchor_date == anchor
@@ -116,9 +89,7 @@ class TestTemporalNERCoverage:
 
     def test_duration_hours_and_minutes(self):
         """'it takes 2 hours and 30 minutes' yields a duration entity."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_datetime=False)
         results = list(ner.extract_entities("it takes 2 hours and 30 minutes"))
@@ -130,9 +101,7 @@ class TestTemporalNERCoverage:
 
     def test_duration_days(self):
         """'3 days' yields a duration with days == 3."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_datetime=False)
         results = list(ner.extract_entities("wait 3 days"))
@@ -140,9 +109,7 @@ class TestTemporalNERCoverage:
 
     def test_duration_week(self):
         """'1 week' yields a duration entity."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_datetime=False)
         results = list(ner.extract_entities("that takes 1 week"))
@@ -150,9 +117,7 @@ class TestTemporalNERCoverage:
 
     def test_duration_only_flag(self):
         """extract_duration=False: no duration entities produced."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_duration=False)
         results = list(ner.extract_entities("wait 5 minutes"))
@@ -164,9 +129,7 @@ class TestTemporalNERCoverage:
 
     def test_currency_amount_not_datetime(self):
         """'$500' must not yield a relative_date entity (line 189 guard)."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_duration=False)
         results = list(ner.extract_entities("it costs $500"))
@@ -174,9 +137,7 @@ class TestTemporalNERCoverage:
 
     def test_bare_number_not_datetime(self):
         """A bare number like '500' must not become a datetime entity."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_duration=False)
         results = list(ner.extract_entities("the price is 500"))
@@ -188,9 +149,7 @@ class TestTemporalNERCoverage:
 
     def test_duration_entity_as_json(self):
         """Entity.as_json() returns expected keys for duration entities (line 226/242)."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_datetime=False)
         results = list(ner.extract_entities("wait 10 minutes"))
@@ -202,9 +161,7 @@ class TestTemporalNERCoverage:
 
     def test_datetime_entity_as_json(self):
         """Entity.as_json() returns expected keys for relative_date entities."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_duration=False)
         results = list(ner.extract_entities("see you tomorrow"))
@@ -220,9 +177,7 @@ class TestTemporalNERCoverage:
 
     def test_extract_datetime_false(self):
         """_extract_datetime_entities not called when extract_datetime=False."""
-        from simple_NER.annotators.temporal_ner import _OVOS_AVAILABLE, TemporalNER
-        if not _OVOS_AVAILABLE:
-            pytest.skip("ovos-date-parser not installed")
+        from simple_NER.annotators.temporal_ner import TemporalNER
 
         ner = TemporalNER(extract_datetime=False, extract_duration=False)
         results = list(ner.extract_entities("tomorrow at 3pm for 2 hours"))

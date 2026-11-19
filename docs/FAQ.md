@@ -24,7 +24,7 @@
 
 | Annotator | Language coverage |
 |-----------|-------------------|
-| `TemporalNER`, `NumberNER` | Multi-language via `ovos-date-parser` / `numtag`, pass `lang="de-de"` or similar |
+| `TemporalNER`, `NumberNER` | Multi-language via `chronologia` / `numtag`, pass `lang="de-de"` or similar |
 | `DateAnnotator` | Written month names in EN/ES/FR/DE/PT/IT/NL, numeric formats are language-agnostic |
 | `CurrencyAnnotator` | Currency words in EN/ES/FR/DE/PT/IT/NL, symbols/ISO codes are language-agnostic |
 | `OrganizationAnnotator` | Company suffixes for DE/FR/ES/PT/IT/NL/BE and English, accented Latin characters in the name regex |
@@ -63,12 +63,12 @@ Pass `lang` to any annotator or to `create_pipeline(names, lang="de-de")`: the f
 pip install simple_NER
 ```
 
-### "ovos-date-parser not found" warning
+### "chronologia not found" error
 
-`TemporalNER` degrades gracefully but datetime extraction won't work.
+`TemporalNER` needs `chronologia`.
 
 ```bash
-pip install ovos-date-parser ovos-number-parser
+pip install chronologia
 ```
 
 ### Permission denied
